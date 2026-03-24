@@ -10,4 +10,5 @@
 
 body {
   font-family: var(--font-serif);
+  overflow-x: hidden;
 }

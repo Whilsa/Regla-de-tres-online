@@ -392,37 +392,95 @@ Mantén un tono profesional pero alentador. Si el usuario se equivoca, no lo cor
       exit={{ opacity: 0 }}
       className={`fixed inset-0 z-[100] ${isKids ? 'bg-slate-900' : 'bg-[#F8F9FA]'} flex flex-col ${theme.font}`}
     >
-      {/* Header */}
-      <div className={`p-4 md:p-6 border-b ${isKids ? 'border-white/10 bg-slate-900/50' : 'border-slate-200 bg-white/80'} flex items-center justify-between backdrop-blur-md sticky top-0 z-10`}>
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={onClose}
-            className={`p-2 rounded-full transition-colors ${isKids ? 'hover:bg-white/10 text-white' : 'hover:bg-slate-100 text-slate-600'}`}
-          >
-            <ArrowLeft size={24} />
-          </button>
-          <div>
-            <h2 className={`text-xl font-bold flex items-center gap-2 ${isKids ? 'text-white' : theme.primaryText}`}>
-              <MessageSquare size={24} />
-              Guía Paso a Paso
-            </h2>
-            <p className={`${isKids ? 'text-slate-400' : 'text-slate-500'} text-sm hidden sm:block`}>Método de la Primera álgebra de magnitudes</p>
+      <div className="sticky top-0 z-50">
+        {/* Pinned Problem */}
+        <AnimatePresence>
+          {pinnedProblem && (
+            <motion.div 
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              className={`${isKids ? 'bg-orange-500/10 border-orange-500/20' : 'bg-[#5A5A40]/5 border-[#5A5A40]/10'} border-b p-3 backdrop-blur-md`}
+            >
+              <div className="max-w-4xl mx-auto flex flex-col md:flex-row gap-4">
+                <div className="flex gap-3 flex-1">
+                  <div className="mt-1">
+                    <Pin size={16} className={`${isKids ? 'text-orange-400' : 'text-[#5A5A40]'} rotate-45`} />
+                  </div>
+                  <div>
+                    <span className={`${isKids ? 'text-orange-400' : 'text-[#5A5A40]'} text-[9px] font-bold uppercase tracking-widest block mb-0.5`}>Problema en curso</span>
+                    <p className={`${isKids ? 'text-white' : 'text-slate-800'} font-medium leading-relaxed text-base md:text-lg`}>{pinnedProblem}</p>
+                  </div>
+                </div>
+
+                {pinnedEquation && (
+                  <div className="flex flex-col items-center justify-center border-t md:border-t-0 md:border-l border-slate-200 pt-2 md:pt-0 md:pl-4">
+                    <span className={`${isKids ? 'text-orange-400' : 'text-[#5A5A40]'} text-[9px] font-bold uppercase tracking-widest block mb-1`}>Igualdad fijada</span>
+                    <div className="flex items-center gap-2 font-mono text-xs">
+                      <div className="flex flex-col items-center">
+                        <div className="px-2">{pinnedEquation.num1}</div>
+                        {pinnedEquation.divType1 !== 'none' && (
+                          <>
+                            <div className={`w-full h-0.5 my-0.5 ${isKids ? 'bg-white/20' : 'bg-slate-300'}`} />
+                            {pinnedEquation.divType1 === 'geometric' && (
+                              <div className={`w-full h-0.5 my-0.5 ${isKids ? 'bg-white/20' : 'bg-slate-300'}`} />
+                            )}
+                            <div className="px-2">{pinnedEquation.den1}</div>
+                          </>
+                        )}
+                      </div>
+                      <div className="text-xl font-bold">=</div>
+                      <div className="flex flex-col items-center">
+                        <div className="px-2">{pinnedEquation.num2}</div>
+                        {pinnedEquation.divType2 !== 'none' && (
+                          <>
+                            <div className={`w-full h-0.5 my-0.5 ${isKids ? 'bg-white/20' : 'bg-slate-300'}`} />
+                            {pinnedEquation.divType2 === 'geometric' && (
+                              <div className={`w-full h-0.5 my-0.5 ${isKids ? 'bg-white/20' : 'bg-slate-300'}`} />
+                            )}
+                            <div className="px-2">{pinnedEquation.den2}</div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Header */}
+        <div className={`p-2 md:p-3 border-b ${isKids ? 'border-white/10 bg-slate-900/50' : 'border-slate-200 bg-white/80'} flex items-center justify-between backdrop-blur-md`}>
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={onClose}
+              className={`p-1.5 rounded-full transition-colors ${isKids ? 'hover:bg-white/10 text-white' : 'hover:bg-slate-100 text-slate-600'}`}
+            >
+              <ArrowLeft size={20} />
+            </button>
+            <div>
+              <h2 className={`text-base md:text-lg font-bold flex items-center gap-2 ${isKids ? 'text-white' : theme.primaryText}`}>
+                <MessageSquare size={20} />
+                Guía Paso a Paso
+              </h2>
+              <p className={`${isKids ? 'text-slate-400' : 'text-slate-500'} text-[10px] hidden sm:block`}>Método de la Primera álgebra de magnitudes</p>
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <button 
-            onClick={resetChat}
-            className={`p-2 rounded-full transition-colors flex items-center gap-2 text-sm font-medium px-4 ${isKids ? 'hover:bg-white/10 text-slate-400 hover:text-white' : 'hover:bg-slate-100 text-slate-500 hover:text-slate-800'}`}
-          >
-            <RefreshCcw size={18} />
-            <span className="hidden sm:inline">Reiniciar</span>
-          </button>
-          <button 
-            onClick={onClose}
-            className={`p-2 rounded-full transition-colors ${isKids ? 'hover:bg-white/10 text-white' : 'hover:bg-slate-100 text-slate-600'}`}
-          >
-            <X size={24} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={resetChat}
+              className={`p-1.5 rounded-full transition-colors flex items-center gap-2 text-[10px] font-medium px-3 ${isKids ? 'hover:bg-white/10 text-slate-400 hover:text-white' : 'hover:bg-slate-100 text-slate-500 hover:text-slate-800'}`}
+            >
+              <RefreshCcw size={14} />
+              <span className="hidden sm:inline">Reiniciar</span>
+            </button>
+            <button 
+              onClick={onClose}
+              className={`p-1.5 rounded-full transition-colors ${isKids ? 'hover:bg-white/10 text-white' : 'hover:bg-slate-100 text-slate-600'}`}
+            >
+              <X size={20} />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -430,61 +488,6 @@ Mantén un tono profesional pero alentador. Si el usuario se equivoca, no lo cor
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Main Column */}
         <div className="flex-1 flex flex-col overflow-hidden w-full">
-          {/* Pinned Problem */}
-          <AnimatePresence>
-            {pinnedProblem && (
-              <motion.div 
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                className={`${isKids ? 'bg-orange-500/10 border-orange-500/20' : 'bg-[#5A5A40]/5 border-[#5A5A40]/10'} border-b p-4 sticky top-[73px] md:top-[89px] z-10 backdrop-blur-md`}
-              >
-            <div className="max-w-4xl mx-auto flex flex-col md:flex-row gap-6">
-              <div className="flex gap-3 flex-1">
-                <div className="mt-1">
-                  <Pin size={18} className={`${isKids ? 'text-orange-400' : 'text-[#5A5A40]'} rotate-45`} />
-                </div>
-                <div>
-                  <span className={`${isKids ? 'text-orange-400' : 'text-[#5A5A40]'} text-[10px] font-bold uppercase tracking-widest block mb-1`}>Problema en curso</span>
-                  <p className={`${isKids ? 'text-white' : 'text-slate-800'} font-medium leading-relaxed text-sm md:text-base`}>{pinnedProblem}</p>
-                </div>
-              </div>
-
-              {pinnedEquation && (
-                <div className="flex flex-col items-center justify-center border-t md:border-t-0 md:border-l border-slate-200 pt-4 md:pt-0 md:pl-6">
-                  <span className={`${isKids ? 'text-orange-400' : 'text-[#5A5A40]'} text-[10px] font-bold uppercase tracking-widest block mb-2`}>Igualdad fijada</span>
-                  <div className="flex items-center gap-3 font-mono text-sm">
-                    <div className="flex flex-col items-center">
-                      <div className="px-2">{pinnedEquation.num1}</div>
-                      {pinnedEquation.divType1 !== 'none' && (
-                        <>
-                          <div className={`w-full h-0.5 my-0.5 ${isKids ? 'bg-white/20' : 'bg-slate-300'}`} />
-                          {pinnedEquation.divType1 === 'geometric' && (
-                            <div className={`w-full h-0.5 my-0.5 ${isKids ? 'bg-white/20' : 'bg-slate-300'}`} />
-                          )}
-                          <div className="px-2">{pinnedEquation.den1}</div>
-                        </>
-                      )}
-                    </div>
-                    <div className="text-xl font-bold">=</div>
-                    <div className="flex flex-col items-center">
-                      <div className="px-2">{pinnedEquation.num2}</div>
-                      {pinnedEquation.divType2 !== 'none' && (
-                        <>
-                          <div className={`w-full h-0.5 my-0.5 ${isKids ? 'bg-white/20' : 'bg-slate-300'}`} />
-                          {pinnedEquation.divType2 === 'geometric' && (
-                            <div className={`w-full h-0.5 my-0.5 ${isKids ? 'bg-white/20' : 'bg-slate-300'}`} />
-                          )}
-                          <div className="px-2">{pinnedEquation.den2}</div>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
           {/* Chat Messages */}
           <div 

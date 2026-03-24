@@ -10,7 +10,8 @@ import {
   Lightbulb,
   PlayCircle,
   ArrowLeft,
-  CheckCircle2
+  CheckCircle2,
+  Castle
 } from 'lucide-react';
 import { Mode } from './types';
 import { GeminiService } from './services/geminiService';
@@ -62,20 +63,20 @@ const ExplodingText = () => {
   }, []);
 
   return (
-    <div className="h-12 flex items-center justify-center mt-8">
+    <div className="h-12 flex items-center justify-center mt-8 overflow-hidden relative w-full pointer-events-none">
       <AnimatePresence mode="wait">
         <motion.div
           key={index}
-          initial={{ opacity: 0, scale: 0.5 }}
+          initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1, rotate: 0 }}
           exit={{ 
             opacity: 0, 
-            scale: 4,
-            rotate: [0, -10, 10, -20],
-            filter: "blur(20px)",
-            transition: { duration: 0.5, ease: "anticipate" }
+            scale: 2.5,
+            rotate: [0, -5, 5, -10],
+            filter: "blur(10px)",
+            transition: { duration: 0.4, ease: "anticipate" }
           }}
-          className="text-xl font-black text-orange-500 uppercase tracking-[0.2em] text-center"
+          className="text-xl font-black text-orange-500 uppercase tracking-[0.2em] text-center whitespace-nowrap"
         >
           {texts[index]}
         </motion.div>
@@ -204,13 +205,14 @@ const Magnitude = ({ text, step }: { text: string, step: number }) => {
   );
 };
 
-const Operator = ({ step }: { step: number }) => {
+const Operator = ({ step, id }: { step: number, id?: string }) => {
   const isArithmetic = step === 5;
   return (
     <div className="inline-flex items-center justify-center w-6 h-6 mx-1">
       <AnimatePresence mode="wait">
         <motion.span 
           key={isArithmetic ? 'dot' : 'star'}
+          layoutId={id}
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.5 }}
@@ -257,12 +259,13 @@ export default function App() {
   const [geometricSubStep, setGeometricSubStep] = useState(1);
   const [typewriterProgress, setTypewriterProgress] = useState(0);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showComingSoon, setShowComingSoon] = useState(false);
   const [showSymbolExplanation, setShowSymbolExplanation] = useState(false);
 
   const [isDivided, setIsDivided] = useState(false);
   const [animationComplete, setAnimationComplete] = useState(false);
   const [cancellationState, setCancellationState] = useState(0);
-  const [resolutionPhase, setResolutionPhase] = useState<'START' | 'MOVING' | 'EQUALS' | 'RESULT' | 'TEXT'>('START');
+  const [resolutionPhase, setResolutionPhase] = useState<'START' | 'STEP1' | 'STEP2' | 'RESULT' | 'TEXT'>('START');
   const [practiceView, setPracticeView] = useState<'MENU' | 'HELP_ME' | 'PRACTICE'>('MENU');
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
@@ -298,15 +301,17 @@ export default function App() {
   }, [isLoading]);
 
   useEffect(() => {
-    if (view === 'THEORY' && theoryStep === 8) {
+    if (view === 'THEORY' && theoryStep === 10) {
       setResolutionPhase('START');
-      const timer1 = setTimeout(() => setResolutionPhase('EQUALS'), 3000);
-      const timer2 = setTimeout(() => setResolutionPhase('RESULT'), 4500);
-      const timer3 = setTimeout(() => setResolutionPhase('TEXT'), 5500);
+      const timer1 = setTimeout(() => setResolutionPhase('STEP1'), 5000);
+      const timer2 = setTimeout(() => setResolutionPhase('STEP2'), 10000);
+      const timer3 = setTimeout(() => setResolutionPhase('RESULT'), 15000);
+      const timer4 = setTimeout(() => setResolutionPhase('TEXT'), 18000);
       return () => {
         clearTimeout(timer1);
         clearTimeout(timer2);
         clearTimeout(timer3);
+        clearTimeout(timer4);
       };
     }
   }, [view, theoryStep]);
@@ -372,8 +377,20 @@ export default function App() {
     {
       id: 8,
       type: "DIVISION",
-      content: "¡Enhorabuena! Has planteado correctamente las dos proporciones.\nAhora, fíjate que dividiendo miembro a miembro ambos lados de las dos igualdades obtendremos la proporción del problema entero. Recuperando la magnitud de la díada original el resultado es: se tardan 2,14 días en completar el muro.",
-      buttonText: "¡Enhorabuena! Acabas de aprender la verdadera proporcionalidad de magnitudes"
+      content: "Al dividir miembro a miembro las dos igualdades, estamos aplicando una propiedad fundamental: si dividimos cosas iguales por cosas iguales, los resultados son iguales.",
+      buttonText: "¡Dividamos!"
+    },
+    {
+      id: 9,
+      type: "CANCELLATION",
+      content: "Conforme a la Primera álgebra de magnitudes, cuando una magnitud se divide entre sí misma se obtiene el número abstracto 1. Esto permite simplificar la expresión y despejar nuestra incógnita manteniendo la coherencia física del problema.",
+      buttonText: "¡Qué interesante!"
+    },
+    {
+      id: 10,
+      type: "RESOLUTION",
+      content: "Recuperando la díada original a la que pertenece x son 2,14 días.\n\n¡Enhorabuena! Acabas de aprender la verdadera proporcionalidad de magnitudes. Ahora estás listo/a para practicar con problemas reales aplicando este método infalible.",
+      buttonText: "¡A practicar!"
     }
   ];
 
@@ -413,7 +430,14 @@ export default function App() {
         setAnimationComplete(false);
         setShowSuccess(false);
         setShowSymbolExplanation(false);
+      }
+      if (step + 1 === 9) {
+        setCancellationState(0);
+        setShowSuccess(false);
+      }
+      if (step + 1 === 10) {
         setResolutionPhase('START');
+        setShowSuccess(false);
       }
       setIsLoading(false);
       return;
@@ -587,7 +611,7 @@ export default function App() {
   // Selection View
   if (view === 'SELECTION') {
     return (
-      <div className="min-h-screen bg-[#F5F5F0] flex items-center justify-center p-4 font-serif">
+      <div className="min-h-screen bg-[#F5F5F0] flex items-center justify-center p-4 font-serif overflow-hidden">
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -746,10 +770,10 @@ export default function App() {
                       setPracticeView('HELP_ME');
                       setView('HELP_ME');
                     }}
-                    className={`w-full flex items-center justify-between p-4 ${theme.button} ${theme.mutedBg} border ${theme.borderColor} hover:border-emerald-400/50 transition-all group`}
+                    className={`w-full flex items-center justify-between p-4 ${theme.button} ${isKids ? 'bg-pink-50 border-pink-200 hover:border-pink-400/50' : 'bg-emerald-50 border-emerald-200 hover:border-emerald-400/50'} border transition-all group`}
                   >
                     <div className="flex items-center gap-3">
-                      <Lightbulb size={18} className={`${isKids ? 'text-pink-400' : 'text-emerald-400'} group-hover:text-white`} />
+                      <Lightbulb size={18} className={`${isKids ? 'text-pink-400' : 'text-emerald-400'} group-hover:text-emerald-600`} />
                       <span className={`font-bold ${theme.textColor}`}>Ayúdame con mi ejercicio</span>
                     </div>
                     <ChevronRight size={18} className={`${theme.secondaryText} opacity-50 group-hover:opacity-100`} />
@@ -760,10 +784,24 @@ export default function App() {
                       setPracticeView('PRACTICE');
                       setView('HELP_ME');
                     }}
-                    className={`w-full py-5 ${theme.button} ${isKids ? 'bg-orange-500 hover:bg-orange-600' : 'bg-[#121212] hover:bg-black'} text-white font-black text-xl transition-all flex items-center justify-center gap-3 shadow-xl hover:scale-[1.02] active:scale-[0.98]`}
+                    className={`w-full py-5 ${theme.button} ${isKids ? 'bg-gradient-to-r from-orange-400 to-orange-600 hover:from-orange-500 hover:to-orange-700' : 'bg-gradient-to-r from-emerald-600 to-emerald-800 hover:from-emerald-700 hover:to-emerald-900'} text-white font-black text-xl transition-all flex items-center justify-center gap-3 shadow-xl hover:scale-[1.02] active:scale-[0.98]`}
                   >
                     <Calculator size={24} />
                     {isKids ? '¡Nuevos ejercicios!' : 'Nuevos ejercicios'}
+                  </button>
+
+                  <button 
+                    onClick={() => {
+                      setShowComingSoon(true);
+                      setTimeout(() => setShowComingSoon(false), 3000);
+                    }}
+                    className={`w-full py-5 ${theme.button} ${isKids ? 'bg-gradient-to-r from-purple-400 to-purple-600 hover:from-purple-500 hover:to-purple-700' : 'bg-gradient-to-r from-slate-700 to-slate-900 hover:from-slate-800 hover:to-black'} text-white font-black text-xl transition-all flex items-center justify-center gap-3 shadow-xl hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden`}
+                  >
+                    <Castle size={24} />
+                    {isKids ? '¡Modo Desafío!' : 'Modo Desafío'}
+                    <div className="absolute top-0 right-0 bg-yellow-400 text-black text-[10px] px-2 py-0.5 font-bold uppercase tracking-tighter transform rotate-12 translate-x-2 -translate-y-1">
+                      Pronto
+                    </div>
                   </button>
                 </div>
               </div>
@@ -840,7 +878,9 @@ export default function App() {
                               theoryStep === 5 ? "¿Díada homogénea o heterogénea?" :
                               theoryStep === 6 ? "¿Y en nuestro ejemplo?" :
                               theoryStep === 7 ? "Igualdades para enunciado y pregunta" :
-                              theoryStep === 8 ? "¡Resultado final!" : "Concepto Clave"
+                              theoryStep === 8 ? "Dividiendo igualdades" :
+                              theoryStep === 9 ? "Simplificación de magnitudes" :
+                              theoryStep === 10 ? "¡Resultado final!" : "Concepto Clave"
                             )}
                           </h3>
                         </div>
@@ -851,10 +891,11 @@ export default function App() {
                               <motion.div 
                                 initial={THEORY_STEPS[theoryStep - 1].type === 'DIVISION' ? { opacity: 0, y: -20 } : false}
                                 animate={{ opacity: 1, y: 0 }}
-                                className={`${theoryStep === 8 ? 'p-4 min-h-[80px]' : 'p-8 min-h-[200px]'} rounded-3xl ${theme.mutedBg} border ${theme.borderColor} relative overflow-hidden`}
+                                className={`${[8, 10].includes(theoryStep) ? 'p-4 min-h-[80px]' : 'p-8 min-h-[200px]'} rounded-3xl ${theme.mutedBg} border ${theme.borderColor} relative overflow-hidden`}
                               >
                                 {isKids && <FloatingIcons />}
                                 <div className={`whitespace-pre-wrap ${isKids ? 'text-xl' : 'text-xl'} leading-relaxed ${theme.textColor} relative z-10`}>
+                                {THEORY_STEPS[theoryStep - 1].type !== 'RESOLUTION' && (
                                   <Typewriter 
                                     key={theoryStep}
                                     text={THEORY_STEPS[theoryStep - 1].content as string} 
@@ -867,6 +908,7 @@ export default function App() {
                                       }
                                     }}
                                   />
+                                )}
                                 </div>
                                 <div className={`absolute -right-4 -bottom-4 opacity-5 ${theme.primaryText}`}>
                                   <BookOpen size={120} />
@@ -1139,17 +1181,6 @@ export default function App() {
                           </div>
                         ) : (
                           <>
-                            <div className={`whitespace-pre-wrap ${isKids ? 'text-xl' : 'text-2xl'} leading-relaxed ${theme.textColor} mb-8`}>
-                              <Typewriter 
-                                text={typeof content === 'string' ? content : ''} 
-                                onComplete={() => {
-                                  if (!THEORY_STEPS[theoryStep - 1].type) {
-                                    setShowSuccess(true);
-                                  }
-                                }}
-                              />
-                            </div>
-
                             {THEORY_STEPS[theoryStep - 1].type === 'INTERACTIVE' ? (
                               <div className="space-y-6">
                                 <div className={`p-8 rounded-3xl ${isKids ? 'bg-yellow-50 border-2 border-yellow-200' : 'bg-[#F5F5F0] border border-[#5A5A40]/10'} shadow-inner`}>
@@ -1310,7 +1341,7 @@ export default function App() {
                                       >
                                         {equalityState[part.toLowerCase() as 'enunciado' | 'pregunta'].recursos.length > 0 ? (
                                           equalityState[part.toLowerCase() as 'enunciado' | 'pregunta'].recursos.map((d, i) => (
-                                            <span key={d} className="flex items-center">
+                                            <span key={`${d}-${i}`} className="flex items-center">
                                               {i > 0 && <span className="mx-2 text-slate-300"> * </span>}
                                               <span className="text-blue-600">({d})</span>
                                             </span>
@@ -1347,7 +1378,7 @@ export default function App() {
                                       >
                                         {equalityState[part.toLowerCase() as 'enunciado' | 'pregunta'].trabajo.length > 0 ? (
                                           equalityState[part.toLowerCase() as 'enunciado' | 'pregunta'].trabajo.map((d, i) => (
-                                            <span key={d} className="flex items-center">
+                                            <span key={`${d}-${i}`} className="flex items-center">
                                               {i > 0 && <span className="mx-2 text-slate-300"> * </span>}
                                               <span className="text-purple-600">({d})</span>
                                             </span>
@@ -1403,81 +1434,89 @@ export default function App() {
                           </div>
                          ) : THEORY_STEPS[theoryStep - 1].type === 'CANCELLATION' ? (
                           <div className="space-y-6 flex flex-col items-center">
-                            <div className="flex flex-col w-full max-w-5xl gap-0 mt-8">
-                              {/* Top Row */}
-                              <div className="flex items-center justify-center gap-12">
-                                <div className={`flex-1 text-xl leading-relaxed ${theme.textColor} py-1 text-center`}>
-                                  <span className="inline-flex items-baseline whitespace-nowrap">
+                            <div className="flex items-center justify-center gap-12 w-full mt-8">
+                              {/* Left Fraction */}
+                              <div className="flex flex-col items-center gap-2">
+                                {/* Numerator */}
+                                <div className="text-2xl font-bold flex items-center gap-1">
+                                  <div className="inline-flex items-baseline whitespace-nowrap">
                                     <motion.span layoutId="num-4" transition={{ duration: 3 }} className="font-bold text-2xl">4</motion.span>
                                     <Magnitude text="obreros" step={cancellationState} />
-                                  </span>
-                                  <Operator step={cancellationState} />
-                                  <span className="inline-flex items-baseline whitespace-nowrap">
+                                  </div>
+                                  <Operator step={cancellationState} id="op-1" />
+                                  <div className="inline-flex items-baseline whitespace-nowrap">
                                     <motion.span layoutId="num-7" transition={{ duration: 3 }} className="font-bold text-2xl">7</motion.span>
                                     <Magnitude text="horas diarias" step={cancellationState} />
-                                  </span>
-                                  <Operator step={cancellationState} />
-                                  <span className="inline-flex items-baseline whitespace-nowrap">
+                                  </div>
+                                  <Operator step={cancellationState} id="op-2" />
+                                  <div className="inline-flex items-baseline whitespace-nowrap">
                                     <motion.span layoutId="num-x" transition={{ duration: 3 }} className="font-bold text-2xl">x</motion.span>
                                     <Magnitude text="días" step={cancellationState} />
-                                  </span>
-                                </div>
-                                <div className="min-w-[40px]" />
-                                <div className={`flex-1 text-xl leading-relaxed ${theme.textColor} py-1 text-center`}>
-                                  <span className="inline-flex items-baseline whitespace-nowrap">
-                                    <span className="font-bold text-2xl">1</span>
-                                    <Magnitude text="muro" step={cancellationState} />
-                                  </span>
-                                </div>
-                              </div>
-
-                              {/* Middle Row (Fractions) */}
-                              <div className="flex items-center justify-center gap-12 h-8">
-                                <div className="flex-1 px-4">
-                                  <div className="flex flex-col gap-1">
-                                    <div className="h-[1px] bg-slate-800 w-full rounded-full" />
-                                    {cancellationState < 5 && (
-                                      <div className="h-[1px] bg-slate-800 w-full rounded-full" />
-                                    )}
                                   </div>
                                 </div>
-                                <div className="min-w-[40px] flex justify-center items-center">
-                                  <span className={`text-xl font-bold ${theme.textColor}`}>=</span>
-                                </div>
-                                <div className="flex-1 px-4">
-                                  <div className="flex flex-col gap-1">
-                                    <div className="h-[1px] bg-slate-800 w-full rounded-full" />
-                                    {cancellationState < 5 && (
-                                      <div className="h-[1px] bg-slate-800 w-full rounded-full" />
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
 
-                              {/* Bottom Row */}
-                              <div className="flex items-center justify-center gap-12">
-                                <div className={`flex-1 text-xl leading-relaxed ${theme.textColor} py-1 text-center`}>
-                                  <span className="inline-flex items-baseline whitespace-nowrap">
+                                {/* Fraction Bar */}
+                                <div className="flex flex-col gap-1 w-full">
+                                  <motion.div 
+                                    layoutId="fraction-bar-left"
+                                    className="h-[1px] bg-slate-800 w-full rounded-full"
+                                  />
+                                  {cancellationState < 5 && (
+                                    <motion.div 
+                                      layoutId="fraction-bar-left-2"
+                                      className="h-[1px] bg-slate-800 w-full rounded-full" 
+                                    />
+                                  )}
+                                </div>
+
+                                {/* Denominator */}
+                                <div className="text-2xl font-bold flex items-center gap-1">
+                                  <div className="inline-flex items-baseline whitespace-nowrap">
                                     <motion.span layoutId="num-5" transition={{ duration: 3 }} className="font-bold text-2xl">5</motion.span>
                                     <Magnitude text="obreros" step={cancellationState} />
-                                  </span>
-                                  <Operator step={cancellationState} />
-                                  <span className="inline-flex items-baseline whitespace-nowrap">
+                                  </div>
+                                  <Operator step={cancellationState} id="op-3" />
+                                  <div className="inline-flex items-baseline whitespace-nowrap">
                                     <motion.span layoutId="num-6" transition={{ duration: 3 }} className="font-bold text-2xl">6</motion.span>
                                     <Magnitude text="horas diarias" step={cancellationState} />
-                                  </span>
-                                  <Operator step={cancellationState} />
-                                  <span className="inline-flex items-baseline whitespace-nowrap">
+                                  </div>
+                                  <Operator step={cancellationState} id="op-4" />
+                                  <div className="inline-flex items-baseline whitespace-nowrap">
                                     <motion.span layoutId="num-2" transition={{ duration: 3 }} className="font-bold text-2xl">2</motion.span>
                                     <Magnitude text="días" step={cancellationState} />
-                                  </span>
+                                  </div>
                                 </div>
-                                <div className="min-w-[40px]" />
-                                <div className={`flex-1 text-xl leading-relaxed ${theme.textColor} py-1 text-center`}>
-                                  <span className="inline-flex items-baseline whitespace-nowrap">
-                                    <span className="font-bold text-2xl">1</span>
-                                    <Magnitude text="muro" step={cancellationState} />
-                                  </span>
+                              </div>
+
+                              {/* Equals Sign */}
+                              <motion.div layoutId="equals-sign" className="text-4xl font-bold">=</motion.div>
+
+                              {/* Right Fraction */}
+                              <div className="flex flex-col items-center gap-2">
+                                {/* Numerator */}
+                                <div className="text-2xl font-bold flex items-center gap-1">
+                                  <motion.span layoutId="num-right-top" transition={{ duration: 3 }} className="font-bold text-2xl">1</motion.span>
+                                  <Magnitude text="muro" step={cancellationState} />
+                                </div>
+
+                                {/* Fraction Bar */}
+                                <div className="flex flex-col gap-1 w-full">
+                                  <motion.div 
+                                    layoutId="fraction-bar-right"
+                                    className="h-[1px] bg-slate-800 w-full rounded-full"
+                                  />
+                                  {cancellationState < 5 && (
+                                    <motion.div 
+                                      layoutId="fraction-bar-right-2"
+                                      className="h-[1px] bg-slate-800 w-full rounded-full" 
+                                    />
+                                  )}
+                                </div>
+
+                                {/* Denominator */}
+                                <div className="text-2xl font-bold flex items-center gap-1">
+                                  <motion.span layoutId="num-right-bottom" transition={{ duration: 3 }} className="font-bold text-2xl">1</motion.span>
+                                  <Magnitude text="muro" step={cancellationState} />
                                 </div>
                               </div>
                             </div>
@@ -1514,12 +1553,151 @@ export default function App() {
                                 <motion.button
                                   initial={{ opacity: 0, scale: 0.9 }}
                                   animate={{ opacity: 1, scale: 1 }}
-                                  onClick={() => loadTheory('Introducción teórica', theoryStep)}
+                                  onClick={() => {
+                                    setShowSuccess(true);
+                                    handleNextTheoryStep();
+                                  }}
                                   className={`px-12 py-6 ${theme.primary} text-white font-bold rounded-[2rem] shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-4 text-xl`}
                                 >
                                   ¿Cuánto da?
                                   <ChevronRight size={28} />
                                 </motion.button>
+                              )}
+                            </div>
+                          </div>
+                        ) : THEORY_STEPS[theoryStep - 1].type === 'RESOLUTION' ? (
+                          <div className="space-y-8 flex flex-col items-center py-8 w-full max-w-4xl">
+                            <div className="w-full space-y-12">
+                              {/* Step 1: Initial Equality */}
+                              <motion.div 
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="flex flex-col items-center gap-4 p-6 bg-slate-50 rounded-3xl border border-slate-200 shadow-sm"
+                              >
+                                <span className="text-sm font-bold text-slate-400 uppercase tracking-widest">Igualdad Inicial</span>
+                                <div className="flex items-center justify-center gap-8 scale-110">
+                                  <div className="flex flex-col items-center gap-1">
+                                    <div className="text-xl font-bold flex items-center gap-1">
+                                      <span>4</span><span>·</span><span>7</span><span>·</span><span className="text-blue-600">x</span>
+                                    </div>
+                                    <div className="h-[1.5px] bg-slate-800 w-full" />
+                                    <div className="text-xl font-bold flex items-center gap-1">
+                                      <span>5</span><span>·</span><span>6</span><span>·</span><span>2</span>
+                                    </div>
+                                  </div>
+                                  <div className="text-3xl font-bold">=</div>
+                                  <div className="flex flex-col items-center gap-1">
+                                    <span className="text-xl font-bold">1</span>
+                                    <div className="h-[1.5px] bg-slate-800 w-full" />
+                                    <span className="text-xl font-bold">1</span>
+                                  </div>
+                                </div>
+                              </motion.div>
+
+                              {/* Step 2: Denominator moves */}
+                              {(resolutionPhase === 'STEP1' || resolutionPhase === 'STEP2' || resolutionPhase === 'RESULT' || resolutionPhase === 'TEXT') && (
+                                <motion.div 
+                                  initial={{ opacity: 0, y: 20 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  className="flex flex-col items-center gap-4 p-6 bg-blue-50 rounded-3xl border border-blue-100 shadow-sm"
+                                >
+                                  <span className="text-sm font-bold text-blue-400 uppercase tracking-widest">Paso 1: El denominador pasa multiplicando</span>
+                                  <div className="flex items-center justify-center gap-8 scale-110">
+                                    <div className="text-xl font-bold flex items-center gap-1">
+                                      <span>4</span><span>·</span><span>7</span><span>·</span><span className="text-blue-600">x</span>
+                                    </div>
+                                    <div className="text-3xl font-bold">=</div>
+                                    <div className="flex items-center gap-2">
+                                      <div className="flex flex-col items-center gap-1">
+                                        <span className="text-xl font-bold">1</span>
+                                        <div className="h-[1.5px] bg-slate-800 w-full" />
+                                        <span className="text-xl font-bold">1</span>
+                                      </div>
+                                      <span className="text-2xl font-bold text-emerald-600">·</span>
+                                      <div className="px-3 py-1 bg-emerald-100 rounded-lg border border-emerald-200 text-emerald-700 font-bold text-xl">
+                                        5 · 6 · 2
+                                      </div>
+                                    </div>
+                                  </div>
+                                </motion.div>
+                              )}
+
+                              {/* Step 3: Factors move */}
+                              {(resolutionPhase === 'STEP2' || resolutionPhase === 'RESULT' || resolutionPhase === 'TEXT') && (
+                                <motion.div 
+                                  initial={{ opacity: 0, y: 20 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  className="flex flex-col items-center gap-4 p-6 bg-indigo-50 rounded-3xl border border-indigo-100 shadow-sm"
+                                >
+                                  <span className="text-sm font-bold text-indigo-400 uppercase tracking-widest">Paso 2: Los factores de x pasan dividiendo</span>
+                                  <div className="flex items-center justify-center gap-8 scale-110">
+                                    <div className="text-4xl font-black text-blue-600">x</div>
+                                    <div className="text-3xl font-bold">=</div>
+                                    <div className="flex flex-col items-center gap-1">
+                                      <div className="text-xl font-bold flex items-center gap-1">
+                                        <span className="text-slate-400">1 ·</span> <span className="text-emerald-600">5 · 6 · 2</span>
+                                      </div>
+                                      <div className="h-[2px] bg-slate-800 w-full" />
+                                      <div className="text-xl font-bold flex items-center gap-1">
+                                        <span className="text-slate-400">1 ·</span> <span className="text-blue-600">4 · 7</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </motion.div>
+                              )}
+
+                              {/* Step 4: Result */}
+                              {(resolutionPhase === 'RESULT' || resolutionPhase === 'TEXT') && (
+                                <motion.div 
+                                  initial={{ opacity: 0, scale: 0.9 }}
+                                  animate={{ opacity: 1, scale: 1 }}
+                                  className="flex flex-col items-center gap-6 p-8 bg-emerald-50 rounded-[3rem] border-4 border-emerald-500 shadow-xl"
+                                >
+                                  <span className="text-sm font-bold text-emerald-500 uppercase tracking-widest">Resultado Final</span>
+                                  <div className="flex items-center gap-8 text-7xl font-black text-emerald-700">
+                                    <span>x</span>
+                                    <span>=</span>
+                                    <span className="bg-white px-10 py-4 rounded-3xl shadow-inner border-2 border-emerald-200">2,14</span>
+                                  </div>
+                                </motion.div>
+                              )}
+
+                              {resolutionPhase === 'TEXT' && (
+                                <motion.div
+                                  initial={{ opacity: 0, y: 20 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  className="flex flex-col items-center gap-8 pt-8 border-t border-slate-200"
+                                >
+                                  <div className="flex flex-col items-center gap-6 max-w-2xl text-center">
+                                    {(typeof THEORY_STEPS[theoryStep - 1].content === 'string' 
+                                      ? (THEORY_STEPS[theoryStep - 1].content as string).split('\n\n') 
+                                      : (THEORY_STEPS[theoryStep - 1].content as string[])
+                                    ).map((text, idx) => (
+                                      <motion.p 
+                                        key={idx}
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: idx * 1.5 }}
+                                        className={`${idx === 0 ? 'text-slate-600 font-medium text-xl' : 'text-emerald-700 font-bold text-2xl'} leading-relaxed`}
+                                      >
+                                        {text}
+                                      </motion.p>
+                                    ))}
+                                  </div>
+                                  <motion.button
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: 4 }}
+                                    onClick={() => {
+                                      setShowSuccess(true);
+                                      handleNextTheoryStep();
+                                    }}
+                                    className={`px-16 py-8 ${theme.primary} text-white font-bold rounded-[2.5rem] shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-4 text-2xl`}
+                                  >
+                                    {THEORY_STEPS[theoryStep - 1].buttonText}
+                                    <ChevronRight size={32} />
+                                  </motion.button>
+                                </motion.div>
                               )}
                             </div>
                           </div>
@@ -1654,25 +1832,15 @@ export default function App() {
                                      animate={{ opacity: 1, y: 0 }}
                                      className="flex flex-col items-center gap-8 w-full"
                                    >
-                                     <motion.div
-                                       initial={{ opacity: 0, scale: 0.9 }}
-                                       animate={{ opacity: 1, scale: 1 }}
-                                       className="text-center max-w-2xl p-8 bg-emerald-50 border-2 border-emerald-100 rounded-[2.5rem] shadow-xl mb-4"
-                                     >
-                                       <p className="text-lg text-emerald-800 leading-relaxed mb-4">
-                                         Recuperando la magnitud de la díada original el resultado es:
-                                       </p>
-                                       <div className="text-4xl font-black text-emerald-700 bg-white px-8 py-4 rounded-2xl border-2 border-emerald-200 inline-block">
-                                         2,14 días
-                                       </div>
-                                     </motion.div>
-
                                      <button
-                                       onClick={() => setView('SELECTION')}
+                                       onClick={() => {
+                                         setShowSuccess(true);
+                                         handleNextTheoryStep();
+                                       }}
                                        className={`px-12 py-6 ${theme.primary} text-white font-bold rounded-[2rem] shadow-2xl hover:scale-105 active:scale-95 transition-all text-xl flex items-center gap-4`}
                                      >
-                                       {THEORY_STEPS[theoryStep - 1].buttonText}
-                                       <CheckCircle2 size={28} />
+                                       Siguiente paso
+                                       <ChevronRight size={28} />
                                      </button>
                                    </motion.div>
                                  )}
@@ -1690,15 +1858,7 @@ export default function App() {
                               </button>
                             )}
                           </div>
-                        ) : (
-                          <div className="w-full text-left">
-                            <Typewriter 
-                              key={theoryStep}
-                              text={THEORY_STEPS[theoryStep - 1].content as string} 
-                              onComplete={() => setShowSuccess(true)}
-                            />
-                          </div>
-                        )}
+                        ) : null}
 
                         <div className="flex flex-col items-center gap-6 pt-8 border-t border-slate-100 w-full mt-auto">
                           <div className="flex justify-between items-center w-full">
@@ -1717,15 +1877,15 @@ export default function App() {
 
                             <button
                               onClick={handleNextTheoryStep}
-                              disabled={!showSuccess && [4, 5, 6, 7, 8].includes(theoryStep)}
-                              className={`px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all ${(!showSuccess && [4, 5, 6, 7, 8].includes(theoryStep)) ? 'text-slate-300 cursor-not-allowed' : 'text-slate-600 hover:bg-slate-100'}`}
+                              disabled={!showSuccess && [4, 5, 6, 7, 8, 9, 10].includes(theoryStep)}
+                              className={`px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all ${(!showSuccess && [4, 5, 6, 7, 8, 9, 10].includes(theoryStep)) ? 'text-slate-300 cursor-not-allowed' : 'text-slate-600 hover:bg-slate-100'}`}
                             >
                               Siguiente
                               <ChevronRight size={20} />
                             </button>
                           </div>
 
-                          {showSuccess && theoryStep !== 8 && (
+                          {showSuccess && ![8, 9, 10].includes(theoryStep) && (
                             <button
                               onClick={handleNextTheoryStep}
                               className={`px-10 py-5 ${theme.primary} text-white font-bold rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-3 text-lg`}
@@ -1870,6 +2030,25 @@ export default function App() {
           </AnimatePresence>
         </AnimatePresence>
       </main>
+
+      <AnimatePresence>
+        {showComingSoon && (
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[200] bg-slate-900 text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border border-white/10 backdrop-blur-xl"
+          >
+            <div className="w-10 h-10 bg-purple-500 rounded-xl flex items-center justify-center">
+              <Castle size={20} />
+            </div>
+            <div>
+              <p className="font-bold text-sm">Modo Desafío</p>
+              <p className="text-xs text-slate-400">En desarrollo. ¡Próximamente disponible!</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <footer className="p-8 text-center text-slate-400 text-base">
         <p>© 2026 IA de Daniel Arnaiz Boluda • {renderTextWithLinks("Método basado en la Primera álgebra de magnitudes")}</p>
