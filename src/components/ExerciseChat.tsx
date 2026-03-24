@@ -407,15 +407,15 @@ Mantén un tono profesional pero alentador. Si el usuario se equivoca, no lo cor
                     <Pin size={16} className={`${isKids ? 'text-orange-400' : 'text-[#5A5A40]'} rotate-45`} />
                   </div>
                   <div>
-                    <span className={`${isKids ? 'text-orange-400' : 'text-[#5A5A40]'} text-[9px] font-bold uppercase tracking-widest block mb-0.5`}>Problema en curso</span>
+                    <span className={`${isKids ? 'text-orange-400' : 'text-[#5A5A40]'} text-sm font-bold uppercase tracking-widest block mb-0.5`}>Problema en curso</span>
                     <p className={`${isKids ? 'text-white' : 'text-slate-800'} font-medium leading-relaxed text-base md:text-lg`}>{pinnedProblem}</p>
                   </div>
                 </div>
 
                 {pinnedEquation && (
                   <div className="flex flex-col items-center justify-center border-t md:border-t-0 md:border-l border-slate-200 pt-2 md:pt-0 md:pl-4">
-                    <span className={`${isKids ? 'text-orange-400' : 'text-[#5A5A40]'} text-[9px] font-bold uppercase tracking-widest block mb-1`}>Igualdad fijada</span>
-                    <div className="flex items-center gap-2 font-mono text-xs">
+                    <span className={`${isKids ? 'text-orange-400' : 'text-[#5A5A40]'} text-sm font-bold uppercase tracking-widest block mb-1`}>Igualdad fijada</span>
+                    <div className="flex items-center gap-2 font-mono text-sm">
                       <div className="flex flex-col items-center">
                         <div className="px-2">{pinnedEquation.num1}</div>
                         {pinnedEquation.divType1 !== 'none' && (
@@ -463,13 +463,13 @@ Mantén un tono profesional pero alentador. Si el usuario se equivoca, no lo cor
                 <MessageSquare size={20} />
                 Guía Paso a Paso
               </h2>
-              <p className={`${isKids ? 'text-slate-400' : 'text-slate-500'} text-[10px] hidden sm:block`}>Método de la Primera álgebra de magnitudes</p>
+              <p className={`${isKids ? 'text-slate-400' : 'text-slate-500'} text-sm hidden sm:block`}>Método de la Primera álgebra de magnitudes</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <button 
               onClick={resetChat}
-              className={`p-1.5 rounded-full transition-colors flex items-center gap-2 text-[10px] font-medium px-3 ${isKids ? 'hover:bg-white/10 text-slate-400 hover:text-white' : 'hover:bg-slate-100 text-slate-500 hover:text-slate-800'}`}
+              className={`p-1.5 rounded-full transition-colors flex items-center gap-2 text-sm font-medium px-3 ${isKids ? 'hover:bg-white/10 text-slate-400 hover:text-white' : 'hover:bg-slate-100 text-slate-500 hover:text-slate-800'}`}
             >
               <RefreshCcw size={14} />
               <span className="hidden sm:inline">Reiniciar</span>
@@ -530,7 +530,7 @@ Mantén un tono profesional pero alentador. Si el usuario se equivoca, no lo cor
               <div className="flex flex-wrap justify-center gap-2">
                 <button 
                   onClick={() => setIsInteractiveBoxOpen(!isInteractiveBoxOpen)}
-                  className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-2 ${
+                  className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all flex items-center gap-2 ${
                     isKids ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30 hover:bg-orange-500/30' : 'bg-[#5A5A40]/10 text-[#5A5A40] border border-[#5A5A40]/20 hover:bg-[#5A5A40]/20'
                   }`}
                 >
@@ -546,7 +546,7 @@ Mantén un tono profesional pero alentador. Si el usuario se equivoca, no lo cor
                    (currentStep === 4 && (messages[messages.length - 1].text.toLowerCase().includes('dividir') || messages[messages.length - 1].text.toLowerCase().includes('miembro a miembro')))) && (
                     <button 
                       onClick={() => setCurrentStep(currentStep + 1)}
-                      className={`px-4 py-1.5 rounded-full text-xs font-bold transition-all flex items-center gap-2 ${
+                      className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all flex items-center gap-2 ${
                         isKids ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30 hover:bg-orange-500/30' : 'bg-[#5A5A40]/10 text-[#5A5A40] border border-[#5A5A40]/20 hover:bg-[#5A5A40]/20'
                       }`}
                     >
@@ -564,7 +564,7 @@ Mantén un tono profesional pero alentador. Si el usuario se equivoca, no lo cor
               className={`p-4 rounded-xl border ${isKids ? 'bg-white/5 border-white/10' : 'bg-slate-50 border-slate-200'} space-y-4`}
             >
               <div className="flex justify-between items-center">
-                <p className={`text-xs font-bold uppercase tracking-widest ${isKids ? 'text-orange-400' : 'text-[#5A5A40]'}`}>
+                <p className={`text-sm font-bold uppercase tracking-widest ${isKids ? 'text-orange-400' : 'text-[#5A5A40]'}`}>
                   Cuadro interactivo
                 </p>
                 <button onClick={() => setIsInteractiveBoxOpen(false)} className="text-slate-400 hover:text-slate-600">
@@ -655,7 +655,7 @@ Mantén un tono profesional pero alentador. Si el usuario se equivoca, no lo cor
 
                 <div className="flex flex-wrap justify-center gap-2">
                   <div className="flex gap-1 p-1 rounded-lg bg-slate-200/50">
-                    <span className="text-[9px] font-bold uppercase text-slate-500 self-center px-1.5">Arit:</span>
+                    <span className="text-sm font-bold uppercase text-slate-500 self-center px-1.5">Arit:</span>
                     {['·', 'x', '/'].map(s => (
                       <button 
                         key={s} 
@@ -667,7 +667,7 @@ Mantén un tono profesional pero alentador. Si el usuario se equivoca, no lo cor
                     ))}
                   </div>
                   <div className="flex gap-1 p-1 rounded-lg bg-slate-200/50">
-                    <span className="text-[9px] font-bold uppercase text-slate-500 self-center px-1.5">Geom:</span>
+                    <span className="text-sm font-bold uppercase text-slate-500 self-center px-1.5">Geom:</span>
                     {['*', '//'].map(s => (
                       <button 
                         key={s} 
@@ -683,7 +683,7 @@ Mantén un tono profesional pero alentador. Si el usuario se equivoca, no lo cor
                       left: { num: '', den: '', divType: 'none' },
                       right: { num: '', den: '', divType: 'none' }
                     })}
-                    className="px-3 h-8 rounded-lg bg-red-500/10 text-red-500 text-[10px] font-bold hover:bg-red-500 hover:text-white transition-all"
+                    className="px-3 h-8 rounded-lg bg-red-500/10 text-red-500 text-sm font-bold hover:bg-red-500 hover:text-white transition-all"
                   >
                     Limpiar
                   </button>
@@ -737,7 +737,7 @@ Mantén un tono profesional pero alentador. Si el usuario se equivoca, no lo cor
               )}
           <div className="flex justify-between items-center px-2">
             <div className="flex items-center gap-4">
-              <p className="text-slate-500 text-[10px] uppercase tracking-widest font-bold">
+              <p className="text-slate-500 text-sm uppercase tracking-widest font-bold">
                 Procedimiento Socrático • Paso {currentStep} de 7
               </p>
               <div className="flex gap-1">
@@ -745,7 +745,7 @@ Mantén un tono profesional pero alentador. Si el usuario se equivoca, no lo cor
                   <button
                     key={step}
                     onClick={() => setCurrentStep(step)}
-                    className={`w-4 h-4 rounded-full text-[8px] flex items-center justify-center transition-all ${
+                    className={`w-6 h-6 rounded-full text-sm flex items-center justify-center transition-all ${
                       currentStep === step 
                         ? (isKids ? 'bg-orange-500 text-white' : 'bg-[#5A5A40] text-white') 
                         : (isKids ? 'bg-white/10 text-slate-500 hover:bg-white/20' : 'bg-slate-100 text-slate-400 hover:bg-slate-200')
@@ -756,7 +756,7 @@ Mantén un tono profesional pero alentador. Si el usuario se equivoca, no lo cor
                 ))}
               </div>
             </div>
-            <p className="text-slate-500 text-[10px] hidden sm:block">
+            <p className="text-slate-500 text-sm hidden sm:block">
               Presiona Enter para enviar
             </p>
           </div>

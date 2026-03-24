@@ -697,7 +697,7 @@ export default function App() {
               </div>
               <div>
                 <h2 className={`font-bold ${theme.textColor} leading-tight`}>Regla de tres online ─ la verdadera proporcionalidad de magnitudes</h2>
-                <p className={`text-[10px] uppercase tracking-widest font-bold ${theme.primaryText}`}>
+                <p className={`text-sm uppercase tracking-widest font-bold ${theme.primaryText}`}>
                   {isKids ? '🌟 Modo Niños 🌟' : 'Modo Adultos'}
                 </p>
               </div>
@@ -799,7 +799,7 @@ export default function App() {
                   >
                     <Castle size={24} />
                     {isKids ? '¡Modo Desafío!' : 'Modo Desafío'}
-                    <div className="absolute top-0 right-0 bg-yellow-400 text-black text-[10px] px-2 py-0.5 font-bold uppercase tracking-tighter transform rotate-12 translate-x-2 -translate-y-1">
+                    <div className="absolute top-0 right-0 bg-yellow-400 text-black text-sm px-2 py-0.5 font-bold uppercase tracking-tighter transform rotate-12 translate-x-2 -translate-y-1">
                       Pronto
                     </div>
                   </button>
@@ -818,7 +818,7 @@ export default function App() {
             >
               <div className="p-8 md:p-12">
                 <div className="flex items-center justify-between mb-8">
-                  <span className={`px-4 py-1.5 ${theme.accent} rounded-full text-xs font-bold uppercase tracking-widest`}>
+                  <span className={`px-4 py-1.5 ${theme.accent} rounded-full text-sm font-bold uppercase tracking-widest`}>
                     {view === 'THEORY' ? 'Teoría' : view === 'EXERCISE' ? 'Ejercicio' : view === 'HELP_ME' ? 'Ayuda Personalizada' : 'Solución'}
                   </span>
                   {view === 'EXERCISE' && !isLoading && (
@@ -2044,7 +2044,7 @@ export default function App() {
             </div>
             <div>
               <p className="font-bold text-sm">Modo Desafío</p>
-              <p className="text-xs text-slate-400">En desarrollo. ¡Próximamente disponible!</p>
+              <p className="text-sm text-slate-400">En desarrollo. ¡Próximamente disponible!</p>
             </div>
           </motion.div>
         )}
@@ -2052,7 +2052,7 @@ export default function App() {
 
       <footer className="p-8 text-center text-slate-400 text-base">
         <p>© 2026 IA de Daniel Arnaiz Boluda • {renderTextWithLinks("Método basado en la Primera álgebra de magnitudes")}</p>
-        <p className="mt-1 uppercase tracking-[0.2em] text-xs font-bold text-slate-300">Recursos = Trabajo</p>
+        <p className="mt-1 uppercase tracking-[0.2em] text-sm font-bold text-slate-300">Recursos = Trabajo</p>
       </footer>
     </div>
   );
