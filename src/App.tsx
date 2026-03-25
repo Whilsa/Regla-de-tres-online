@@ -17,10 +17,11 @@ import {
 import { Mode } from './types';
 import { GeminiService } from './services/geminiService';
 import { ExerciseChat } from './components/ExerciseChat';
+import { ResourcesWorkExplanation } from './components/ResourcesWorkExplanation';
 
 const gemini = new GeminiService();
 
-type View = 'SELECTION' | 'DASHBOARD' | 'THEORY' | 'EXERCISE' | 'SOLUTION' | 'HELP_ME';
+type View = 'SELECTION' | 'DASHBOARD' | 'THEORY' | 'EXERCISE' | 'SOLUTION' | 'HELP_ME' | 'RESOURCES_WORK_EXPLANATION';
 
 interface TypewriterProps {
   text: string;
@@ -750,17 +751,17 @@ export default function App() {
                   </button>
 
                   <button 
-                    onClick={() => {
-                      setShowComingSoon(true);
-                      setTimeout(() => setShowComingSoon(false), 3000);
-                    }}
-                    className={`w-full flex items-center justify-between p-4 ${theme.button} ${theme.mutedBg} border ${theme.borderColor} hover:border-orange-400/50 transition-all group`}
+                    onClick={() => setView('RESOURCES_WORK_EXPLANATION')}
+                    className={`w-full flex items-center justify-between p-5 ${theme.button} ${isKids ? 'bg-gradient-to-r from-orange-400 to-amber-500' : 'bg-gradient-to-r from-[#5A5A40] to-[#7A7A60]'} text-white shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all group relative overflow-hidden`}
                   >
-                    <div className="flex items-center gap-3">
-                      <HelpCircle size={18} className={`${isKids ? 'text-yellow-400' : 'text-amber-400'} group-hover:text-white`} />
-                      <span className={`font-bold ${theme.textColor}`}>¿Por qué RECURSOS = TRABAJO?</span>
+                    <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="flex items-center gap-4 relative z-10">
+                      <div className={`p-2 rounded-xl ${isKids ? 'bg-white/20' : 'bg-white/10'}`}>
+                        <Lightbulb size={20} className="text-white animate-pulse" />
+                      </div>
+                      <span className="font-black text-lg tracking-tight whitespace-nowrap">¿Por qué RECURSOS = TRABAJO?</span>
                     </div>
-                    <ChevronRight size={18} className={`${theme.secondaryText} opacity-50 group-hover:opacity-100`} />
+                    <ChevronRight size={20} className="text-white opacity-70 group-hover:opacity-100 transition-all group-hover:translate-x-1" />
                   </button>
                 </div>
               </div>
@@ -780,7 +781,21 @@ export default function App() {
                   />
                 </p>
                 <div className="space-y-3">
-                  <button 
+                  <motion.button 
+                    initial={{ scale: 1 }}
+                    animate={{ 
+                      scale: [1, 1.02, 1],
+                      boxShadow: [
+                        "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+                        isKids ? "0 10px 25px -3px rgba(244, 114, 182, 0.4)" : "0 10px 25px -3px rgba(16, 185, 129, 0.3)",
+                        "0 10px 15px -3px rgba(0, 0, 0, 0.1)"
+                      ]
+                    }}
+                    transition={{ 
+                      duration: 3, 
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
                     onClick={() => {
                       setPracticeView('HELP_ME');
                       setView('HELP_ME');
@@ -792,7 +807,7 @@ export default function App() {
                       <span className={`font-bold ${theme.textColor}`}>Ayúdame con mi ejercicio</span>
                     </div>
                     <ChevronRight size={18} className={`${theme.secondaryText} opacity-50 group-hover:opacity-100`} />
-                  </button>
+                  </motion.button>
 
                   <button 
                     onClick={() => {
@@ -2040,6 +2055,12 @@ export default function App() {
                 isKids={isKids}
                 theme={theme}
                 initialMode={practiceView === 'PRACTICE' ? 'PRACTICE' : 'HELP'}
+              />
+            )}
+            {view === 'RESOURCES_WORK_EXPLANATION' && (
+              <ResourcesWorkExplanation 
+                onBack={() => setView('DASHBOARD')}
+                isKids={isKids}
               />
             )}
           </AnimatePresence>

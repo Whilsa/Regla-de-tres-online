@@ -6,6 +6,14 @@
   --font-sans: "Inter", sans-serif;
   --font-playful: "Fredoka", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
+  
+  --text-base: 17px;
+  --text-sm: 16px;
+  --text-xs: 16px;
+}
+
+html {
+  font-size: 17px;
 }
 
 body {
