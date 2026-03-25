@@ -9,6 +9,7 @@ import {
   AlertCircle,
   Lightbulb,
   PlayCircle,
+  HelpCircle,
   ArrowLeft,
   CheckCircle2,
   Castle
@@ -744,6 +745,20 @@ export default function App() {
                     <div className="flex items-center gap-3">
                       <PlayCircle size={18} className={`${isKids ? 'text-yellow-400' : 'text-amber-400'} group-hover:text-white`} />
                       <span className={`font-bold ${theme.textColor}`}>Empezar</span>
+                    </div>
+                    <ChevronRight size={18} className={`${theme.secondaryText} opacity-50 group-hover:opacity-100`} />
+                  </button>
+
+                  <button 
+                    onClick={() => {
+                      setShowComingSoon(true);
+                      setTimeout(() => setShowComingSoon(false), 3000);
+                    }}
+                    className={`w-full flex items-center justify-between p-4 ${theme.button} ${theme.mutedBg} border ${theme.borderColor} hover:border-orange-400/50 transition-all group`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <HelpCircle size={18} className={`${isKids ? 'text-yellow-400' : 'text-amber-400'} group-hover:text-white`} />
+                      <span className={`font-bold ${theme.textColor}`}>¿Por qué RECURSOS = TRABAJO?</span>
                     </div>
                     <ChevronRight size={18} className={`${theme.secondaryText} opacity-50 group-hover:opacity-100`} />
                   </button>
