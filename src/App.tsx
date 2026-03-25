@@ -18,10 +18,11 @@ import { Mode } from './types';
 import { GeminiService } from './services/geminiService';
 import { ExerciseChat } from './components/ExerciseChat';
 import { ResourcesWorkExplanation } from './components/ResourcesWorkExplanation';
+import { ChallengeMode } from './components/ChallengeMode';
 
 const gemini = new GeminiService();
 
-type View = 'SELECTION' | 'DASHBOARD' | 'THEORY' | 'EXERCISE' | 'SOLUTION' | 'HELP_ME' | 'RESOURCES_WORK_EXPLANATION';
+type View = 'SELECTION' | 'DASHBOARD' | 'THEORY' | 'EXERCISE' | 'SOLUTION' | 'HELP_ME' | 'RESOURCES_WORK_EXPLANATION' | 'CHALLENGE';
 
 interface TypewriterProps {
   text: string;
@@ -679,6 +680,15 @@ export default function App() {
     );
   }
 
+  if (view === 'CHALLENGE') {
+    return (
+      <ChallengeMode 
+        onBack={() => setView('DASHBOARD')}
+        isKids={isKids}
+      />
+    );
+  }
+
   return (
     <div className={`min-h-screen ${theme.bg} ${theme.font} ${theme.textColor} transition-colors duration-500`}>
       {/* Navbar */}
@@ -822,16 +832,12 @@ export default function App() {
 
                   <button 
                     onClick={() => {
-                      setShowComingSoon(true);
-                      setTimeout(() => setShowComingSoon(false), 3000);
+                      setView('CHALLENGE');
                     }}
                     className={`w-full py-5 ${theme.button} ${isKids ? 'bg-gradient-to-r from-purple-400 to-purple-600 hover:from-purple-500 hover:to-purple-700' : 'bg-gradient-to-r from-slate-700 to-slate-900 hover:from-slate-800 hover:to-black'} text-white font-black text-xl transition-all flex items-center justify-center gap-3 shadow-xl hover:scale-[1.02] active:scale-[0.98] relative overflow-hidden`}
                   >
                     <Castle size={24} />
-                    {isKids ? '¡Modo Desafío!' : 'Modo Desafío'}
-                    <div className="absolute top-0 right-0 bg-yellow-400 text-black text-sm px-2 py-0.5 font-bold uppercase tracking-tighter transform rotate-12 translate-x-2 -translate-y-1">
-                      Pronto
-                    </div>
+                    {isKids ? '¡Desafío diario!' : 'Desafío diario'}
                   </button>
                 </div>
               </div>
@@ -2079,7 +2085,7 @@ export default function App() {
               <Castle size={20} />
             </div>
             <div>
-              <p className="font-bold text-sm">Modo Desafío</p>
+              <p className="font-bold text-sm">Desafío diario</p>
               <p className="text-sm text-slate-400">En desarrollo. ¡Próximamente disponible!</p>
             </div>
           </motion.div>
