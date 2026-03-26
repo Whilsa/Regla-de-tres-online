@@ -57,46 +57,106 @@ export const ChallengeMode: React.FC<ChallengeModeProps> = ({ onBack, isKids }) 
   const today = new Date().toISOString().split('T')[0];
 
   const problems = useMemo(() => {
-    // Simple seeded random to generate 3 problems daily
-    const seed = today.split('-').reduce((acc, val) => acc + parseInt(val), 0);
-    const seededRandom = (s: number) => {
-      const x = Math.sin(s) * 10000;
-      return x - Math.floor(x);
-    };
-
-    const generateProblem = (diff: number, index: number): Problem => {
-      const r1 = seededRandom(seed + index * 10);
-      const r2 = seededRandom(seed + index * 20);
+    const generateProblem = (diffLevel: number, index: number): Problem => {
+      // Use the date as a base for the seed (e.g., 20260326)
+      const dateSeed = parseInt(today.replace(/-/g, ''));
+      // Combine date seed with problem index to get unique problems per day
+      let currentSeed = dateSeed + (index + 1) * 777; 
       
+      const nextRandom = () => {
+        currentSeed = (currentSeed * 16807) % 2147483647;
+        return (currentSeed - 1) / 2147483646;
+      };
+
+      const pick = (arr: any[]) => arr[Math.floor(nextRandom() * arr.length)];
+      const randInt = (min: number, max: number) => Math.floor(nextRandom() * (max - min + 1)) + min;
+
       let text = "";
       let solution = 0;
       let difficulty: 'Fácil' | 'Medio' | 'Difícil' = 'Fácil';
 
-      if (diff === 0) {
-        // Regla de Tres Directa: Manzanas y Precio
-        // 2kg -> 4€, 3kg -> ? (6€)
-        const baseKg = 2;
-        const basePrice = 4;
-        const targetKg = 3;
-        solution = (targetKg * basePrice) / baseKg;
-        text = `Si 2 kg de manzanas cuestan 4€, ¿cuánto costarán ${targetKg} kg?`;
+      if (diffLevel === 0) {
         difficulty = 'Fácil';
-      } else if (diff === 1) {
-        // Regla de Tres Inversa: Obreros y Días
-        // 2 obreros -> 6 días, 4 obreros -> ? (3 días)
-        const initialWorkers = 2;
-        const initialDays = 6;
-        const targetWorkers = 4;
-        solution = (initialWorkers * initialDays) / targetWorkers;
-        text = `Si 2 obreros tardan 6 días en terminar un muro, ¿cuántos días tardarán ${targetWorkers} obreros?`;
+        const scenarios = [
+          { item: 'manzanas', unit: 'kg', action: 'cuestan', resultUnit: '€' },
+          { item: 'peras', unit: 'kg', action: 'cuestan', resultUnit: '€' },
+          { item: 'naranjas', unit: 'kg', action: 'cuestan', resultUnit: '€' },
+          { item: 'patatas', unit: 'kg', action: 'cuestan', resultUnit: '€' },
+          { item: 'caramelos', unit: 'bolsas', action: 'valen', resultUnit: '€' }
+        ];
+        const s = pick(scenarios);
+        
+        let a = 2, b = 4, c = 3;
+        let attempts = 0;
+        while (attempts < 100) {
+          a = randInt(2, 5);
+          b = randInt(2, 8);
+          c = randInt(2, 9);
+          solution = (c * b) / a;
+          if ((c * b) % a === 0 && solution < 10 && solution > 0 && solution !== b && a !== c) break;
+          attempts++;
+        }
+        text = `Si ${a} ${s.unit} de ${s.item} ${s.action} ${b}${s.resultUnit}, ¿cuánto costarán ${c} ${s.unit}?`;
+      } else if (diffLevel === 1) {
         difficulty = 'Medio';
+        const scenarios = [
+          { subject: 'obreros', action: 'tardan', timeUnit: 'días', task: 'terminar un muro' },
+          { subject: 'pintores', action: 'tardan', timeUnit: 'horas', task: 'pintar una casa' },
+          { subject: 'grifos', action: 'tardan', timeUnit: 'minutos', task: 'llenar un depósito' },
+          { subject: 'máquinas', action: 'tardan', timeUnit: 'segundos', task: 'procesar un pedido' }
+        ];
+        const s = pick(scenarios);
+
+        let a = 2, b = 6, c = 4;
+        let attempts = 0;
+        while (attempts < 100) {
+          a = randInt(2, 6);
+          b = randInt(2, 9);
+          c = randInt(2, 8);
+          solution = (a * b) / c;
+          if ((a * b) % c === 0 && solution < 10 && solution > 0 && solution !== b && a !== c) break;
+          attempts++;
+        }
+        text = `Si ${a} ${s.subject} ${s.action} ${b} ${s.timeUnit} en ${s.task}, ¿cuántos ${s.timeUnit} tardarán ${c} ${s.subject}?`;
       } else {
-        // Regla de Tres Compuesta: Grifos, Litros y Horas
-        // 2 grifos, 100L -> 4h
-        // 4 grifos, 200L -> ? (4h) -> Ajustado para solución 4
-        solution = 4;
-        text = `Si 2 grifos llenan un depósito de 100 litros en 4 horas, ¿cuántas horas tardarán 4 grifos en llenar un depósito de 200 litros?`;
         difficulty = 'Difícil';
+        const scenarios = [
+          { s1: 'obreros', s2: 'horas/día', s3: 'días' },
+          { s1: 'grifos', s2: 'litros', s3: 'horas' },
+          { s1: 'máquinas', s2: 'piezas', s3: 'horas' }
+        ];
+        const s = pick(scenarios);
+
+        let a, b, c, d, e;
+        let attempts = 0;
+        while (attempts < 500) {
+          a = randInt(2, 6);
+          b = randInt(2, 6);
+          c = randInt(2, 6);
+          d = randInt(2, 6);
+          e = randInt(2, 6);
+          
+          if (s.s1 === 'obreros') {
+             // x = c * (a/d) * (b/e)
+             solution = (a * b * c) / (d * e);
+             if ((a * b * c) % (d * e) === 0 && solution < 10 && solution > 0 && a !== d) {
+                text = `Si ${a} ${s.s1} trabajando ${b} ${s.s2} tardan ${c} ${s.s3}, ¿cuántos ${s.s3} tardarán ${d} ${s.s1} trabajando ${e} ${s.s2}?`;
+                break;
+             }
+          } else {
+             // x = c * (a/d) * (e/b)
+             solution = (c * a * e) / (d * b);
+             if ((c * a * e) % (d * b) === 0 && solution < 10 && solution > 0 && a !== d) {
+                text = `Si ${a} ${s.s1} llenan ${b} ${s.s2} en ${c} ${s.s3}, ¿cuántas ${s.s3} tardarán ${d} ${s.s1} en llenar ${e} ${s.s2}?`;
+                break;
+             }
+          }
+          attempts++;
+        }
+        if (attempts >= 500) {
+          solution = 4;
+          text = `Si 2 grifos llenan un depósito de 100 litros en 4 horas, ¿cuántas horas tardarán 4 grifos en llenar un depósito de 200 litros?`;
+        }
       }
 
       return { id: index, text, solution: Math.round(solution), difficulty };
@@ -196,7 +256,7 @@ export const ChallengeMode: React.FC<ChallengeModeProps> = ({ onBack, isKids }) 
   return (
     <div className={`fixed inset-0 z-[9999] ${isKids ? 'bg-slate-950' : 'bg-slate-900'} overflow-y-auto flex flex-col`}>
       {/* Header */}
-      <div className="w-full px-6 py-6 flex items-center justify-between bg-black/40 backdrop-blur-md sticky top-0 z-[10000] border-b border-white/5">
+      <div className="w-full px-6 py-4 lg:py-6 flex items-center justify-between bg-black/40 backdrop-blur-md sticky top-0 z-[10000] border-b border-white/5">
         <button 
           onClick={onBack}
           className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors font-bold uppercase tracking-widest text-xs"
@@ -210,9 +270,9 @@ export const ChallengeMode: React.FC<ChallengeModeProps> = ({ onBack, isKids }) 
         </div>
       </div>
 
-      <div className="flex-1 w-full max-w-7xl mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-12 gap-12">
+      <div className="flex-1 w-full max-w-7xl mx-auto px-6 pt-24 lg:pt-32 pb-12 grid grid-cols-1 lg:grid-cols-12 gap-12">
         {/* Left: The Bomb or Result Carousel */}
-        <div className="lg:col-span-5 flex flex-col items-center justify-center order-1 lg:order-1 min-h-[500px]">
+        <div className="lg:col-span-5 flex flex-col items-center justify-center order-1 lg:order-1 min-h-[400px] lg:min-h-[500px]">
           <AnimatePresence mode="wait">
             {gameState === 'IDLE' || gameState === 'PLAYING' ? (
               <motion.div 
