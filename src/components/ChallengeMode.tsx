@@ -82,9 +82,13 @@ export const ChallengeMode: React.FC<ChallengeModeProps> = ({ onBack, isKids }) 
           { item: 'peras', unit: 'kg', action: 'cuestan', resultUnit: '€' },
           { item: 'naranjas', unit: 'kg', action: 'cuestan', resultUnit: '€' },
           { item: 'patatas', unit: 'kg', action: 'cuestan', resultUnit: '€' },
-          { item: 'caramelos', unit: 'bolsas', action: 'valen', resultUnit: '€' }
+          { item: 'caramelos', unit: 'bolsas', action: 'valen', resultUnit: '€' },
+          { item: 'libros', unit: 'ejemplares', action: 'cuestan', resultUnit: '€' },
+          { item: 'entradas de cine', unit: 'tickets', action: 'valen', resultUnit: '€' },
+          { item: 'bolígrafos', unit: 'unidades', action: 'cuestan', resultUnit: '€' }
         ];
-        const s = pick(scenarios);
+        // Deterministic pick based on date to ensure rotation
+        const s = scenarios[dateSeed % scenarios.length];
         
         let a = 2, b = 4, c = 3;
         let attempts = 0;
@@ -103,9 +107,13 @@ export const ChallengeMode: React.FC<ChallengeModeProps> = ({ onBack, isKids }) 
           { subject: 'obreros', action: 'tardan', timeUnit: 'días', task: 'terminar un muro' },
           { subject: 'pintores', action: 'tardan', timeUnit: 'horas', task: 'pintar una casa' },
           { subject: 'grifos', action: 'tardan', timeUnit: 'minutos', task: 'llenar un depósito' },
-          { subject: 'máquinas', action: 'tardan', timeUnit: 'segundos', task: 'procesar un pedido' }
+          { subject: 'máquinas', action: 'tardan', timeUnit: 'segundos', task: 'procesar un pedido' },
+          { subject: 'camiones', action: 'tardan', timeUnit: 'horas', task: 'repartir la carga' },
+          { subject: 'cocineros', action: 'tardan', timeUnit: 'minutos', task: 'preparar el menú' },
+          { subject: 'jardineros', action: 'tardan', timeUnit: 'horas', task: 'podar el parque' }
         ];
-        const s = pick(scenarios);
+        // Deterministic pick based on date to ensure rotation
+        const s = scenarios[dateSeed % scenarios.length];
 
         let a = 2, b = 6, c = 4;
         let attempts = 0;
@@ -123,9 +131,13 @@ export const ChallengeMode: React.FC<ChallengeModeProps> = ({ onBack, isKids }) 
         const scenarios = [
           { s1: 'obreros', s2: 'horas/día', s3: 'días' },
           { s1: 'grifos', s2: 'litros', s3: 'horas' },
-          { s1: 'máquinas', s2: 'piezas', s3: 'horas' }
+          { s1: 'máquinas', s2: 'piezas', s3: 'horas' },
+          { s1: 'impresoras', s2: 'páginas', s3: 'minutos' },
+          { s1: 'estudiantes', s2: 'capítulos', s3: 'días' },
+          { s1: 'bombas de agua', s2: 'metros cúbicos', s3: 'horas' }
         ];
-        const s = pick(scenarios);
+        // Deterministic pick based on date to ensure rotation
+        const s = scenarios[dateSeed % scenarios.length];
 
         let a, b, c, d, e;
         let attempts = 0;
@@ -136,7 +148,7 @@ export const ChallengeMode: React.FC<ChallengeModeProps> = ({ onBack, isKids }) 
           d = randInt(2, 6);
           e = randInt(2, 6);
           
-          if (s.s1 === 'obreros') {
+          if (s.s1 === 'obreros' || s.s1 === 'estudiantes') {
              // x = c * (a/d) * (b/e)
              solution = (a * b * c) / (d * e);
              if ((a * b * c) % (d * e) === 0 && solution < 10 && solution > 0 && a !== d) {
