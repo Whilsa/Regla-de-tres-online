@@ -47,7 +47,7 @@ const renderTextWithLinks = (text: string) => {
   const parts = cleanedText.split(/(Primera álgebra de magnitudes)/g);
   const renderedParts = parts.map((part, i) => 
     part === "Primera álgebra de magnitudes" 
-      ? <a key={i} href={AMAZON_LINK} target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-400 transition-colors">{part}</a>
+      ? <a key={i} href={AMAZON_LINK} target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-400 transition-colors font-bold">{part}</a>
       : part
   );
 
@@ -1844,7 +1844,7 @@ export default function App() {
                                     className="max-w-md p-6 bg-white border-2 border-red-200 rounded-3xl text-left shadow-xl overflow-hidden"
                                   >
                                     <p className="text-sm text-slate-700 leading-relaxed">
-                                      Respetando la Primera álgebra de magnitudes no podemos utilizar la misma simbología cuando operamos con magnitudes que con la aritmética tradicional, pues al operar con las dimensiones físicas lo estamos realizando de forma geométrica, como se ha explicado anteriormente. Por ello, la multiplicación de magnitudes se representa con un * y la división con doble línea //.
+                                      Respetando la {renderTextWithLinks("Primera álgebra de magnitudes")} no podemos utilizar la misma simbología cuando operamos con magnitudes que con la aritmética tradicional, pues al operar con las dimensiones físicas lo estamos realizando de forma geométrica, como se ha explicado anteriormente. Por ello, la multiplicación de magnitudes se representa con un * y la división con doble línea //.
                                     </p>
                                   </motion.div>
                                 )}

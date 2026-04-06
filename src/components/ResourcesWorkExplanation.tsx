@@ -46,13 +46,13 @@ export const ResourcesWorkExplanation: React.FC<ResourcesWorkExplanationProps> =
     button: isKids ? 'bg-orange-500 hover:bg-orange-600' : 'bg-[#5A5A40] hover:bg-[#4A4A30]',
   };
 
-  const AMAZON_LINK = "https://www.amazon.es/nueva-F%C3%ADsica-los-espacios-%C2%ABdism%C3%A9tricos%C2%BB-ebook/dp/B0BLF9D8LY";
+  const AMAZON_LINK = "https://www.amazon.es/nueva-F%C3%ADsica-los-espacios-%C2%ABdism%C3%A9tricos%C2%BB-ebook/dp/B0BLF9D8LY/ref=sr_1_1?__mk_es_ES=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=472FCKUHDEK0&dib=eyJ2IjoiMSJ9.gdrdMrAOVuxSpSXIqkdVai0uu6ihwF585slo9Nr3rT4.8Nc7j5Z6As7CCT8IljCU4a9fspyvuIkdmyEBqfdWl6A&dib_tag=se&keywords=la+nueva+f%C3%ADsica+de+los+espacios+dism%C3%A9tricos&qid=1764834450&s=digital-text&sprefix=la+nueva+f%C3%ADsica+de+los+espacios+dism%C3%A9tricos%2Cdigital-text%2C41&sr=1-1";
 
   const renderTextWithLinks = (text: string) => {
     const parts = text.split(/(Primera álgebra de magnitudes)/g);
     return parts.map((part, i) => 
       part === "Primera álgebra de magnitudes" 
-        ? <a key={i} href={AMAZON_LINK} target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-400 transition-colors">{part}</a>
+        ? <a key={i} href={AMAZON_LINK} target="_blank" rel="noopener noreferrer" className="underline hover:text-blue-400 transition-colors font-bold">{part}</a>
         : part
     );
   };

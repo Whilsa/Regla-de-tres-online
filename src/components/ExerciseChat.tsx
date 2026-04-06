@@ -150,6 +150,7 @@ Mantén un tono profesional pero alentador. Si el usuario se equivoca, no lo cor
 IMPORTANTE: Debes seguir estrictamente este procedimiento SOCRÁTICO. NUNCA des la solución directamente. Guía al usuario con preguntas y razonamientos lógicos.
 
 REGLAS DE ESTILO Y CONTENIDO:
+- RECUERDA: Debes mencionar siempre el nombre completo "Primera álgebra de magnitudes" cuando te refieras al método o a sus principios.
 - NO uses ** para negrita en el texto.
 - NO uses el carácter \` para citar o indicar símbolos (por ejemplo, no escribas \`*\`).
 - RECUERDA: El signo '*' se usa ÚNICAMENTE para la multiplicación entre dos o más díadas (ejemplo: 8 obreros * 30 días). NUNCA lo uses para unir un número con su magnitud (ejemplo correcto: 8 obreros).
@@ -300,6 +301,7 @@ Mantén un tono profesional pero alentador. Si el usuario se equivoca, no lo cor
 IMPORTANTE: Debes seguir estrictamente este procedimiento SOCRÁTICO. NUNCA des la solución directamente. Guía al usuario con preguntas y razonamientos lógicos.
 
 REGLAS DE ESTILO Y CONTENIDO:
+- RECUERDA: Debes mencionar siempre el nombre completo "Primera álgebra de magnitudes" cuando te refieras al método o a sus principios.
 - NO uses ** para negrita en el texto.
 - NO uses el carácter \` para citar o indicar símbolos (por ejemplo, no escribas \`*\`).
 - RECUERDA: El signo '*' se usa ÚNICAMENTE para la multiplicación entre dos o más díadas (ejemplo: 8 obreros * 30 días). NUNCA lo uses para unir un número con su magnitud (ejemplo correcto: 8 obreros).
@@ -361,10 +363,10 @@ Mantén un tono profesional pero alentador. Si el usuario se equivoca, no lo cor
     }
   };
 
+  const AMAZON_LINK = "https://www.amazon.es/nueva-F%C3%ADsica-los-espacios-%C2%ABdism%C3%A9tricos%C2%BB-ebook/dp/B0BLF9D8LY/ref=sr_1_1?__mk_es_ES=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=472FCKUHDEK0&dib=eyJ2IjoiMSJ9.gdrdMrAOVuxSpSXIqkdVai0uu6ihwF585slo9Nr3rT4.8Nc7j5Z6As7CCT8IljCU4a9fspyvuIkdmyEBqfdWl6A&dib_tag=se&keywords=la+nueva+f%C3%ADsica+de+los+espacios+dism%C3%A9tricos&qid=1764834450&s=digital-text&sprefix=la+nueva+f%C3%ADsica+de+los+espacios+dism%C3%A9tricos%2Cdigital-text%2C41&sr=1-1";
+
   const renderMessageText = (text: string) => {
-    if (!text.includes('Cuadro interactivo')) return text;
-    
-    const parts = text.split(/(Cuadro interactivo)/g);
+    const parts = text.split(/(Cuadro interactivo|Primera álgebra de magnitudes)/g);
     return parts.map((part, i) => {
       if (part === 'Cuadro interactivo') {
         return (
@@ -379,6 +381,19 @@ Mantén un tono profesional pero alentador. Si el usuario se equivoca, no lo cor
           >
             Cuadro interactivo
           </button>
+        );
+      }
+      if (part === 'Primera álgebra de magnitudes') {
+        return (
+          <a 
+            key={i} 
+            href={AMAZON_LINK} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="underline hover:text-blue-400 transition-colors font-bold"
+          >
+            {part}
+          </a>
         );
       }
       return part;
@@ -463,7 +478,9 @@ Mantén un tono profesional pero alentador. Si el usuario se equivoca, no lo cor
                 <MessageSquare size={20} />
                 Guía Paso a Paso
               </h2>
-              <p className={`${isKids ? 'text-slate-400' : 'text-slate-500'} text-sm hidden sm:block`}>Método de la Primera álgebra de magnitudes</p>
+              <p className={`${isKids ? 'text-slate-400' : 'text-slate-500'} text-sm hidden sm:block`}>
+                Método de la {renderMessageText("Primera álgebra de magnitudes")}
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
