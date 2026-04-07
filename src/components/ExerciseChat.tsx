@@ -31,6 +31,15 @@ export const ExerciseChat: React.FC<ExerciseChatProps> = ({
   } | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
   const [isInteractiveBoxOpen, setIsInteractiveBoxOpen] = useState(false);
+  const [apiKeyError, setApiKeyError] = useState(false);
+
+  useEffect(() => {
+    if (!process.env.GEMINI_API_KEY) {
+      setApiKeyError(true);
+      console.error("GEMINI_API_KEY is not defined. Please set it in your environment variables.");
+    }
+  }, []);
+
   const [equationInput, setEquationInput] = useState({
     left: { num: '', den: '', divType: 'none' as 'none' | 'arithmetic' | 'geometric' },
     right: { num: '', den: '', divType: 'none' as 'none' | 'arithmetic' | 'geometric' }
@@ -512,7 +521,13 @@ Mantén un tono profesional pero alentador. Si el usuario se equivoca, no lo cor
             className={`flex-1 overflow-y-auto p-4 md:p-8 space-y-6 scroll-smooth ${isKids ? 'bg-[radial-gradient(circle_at_50%_50%,rgba(30,41,59,1)_0%,rgba(15,23,42,1)_100%)]' : 'bg-[#F8F9FA]'}`}
           >
             <div className="max-w-4xl mx-auto pb-20 space-y-6">
-          {messages.map((msg, idx) => (
+              {apiKeyError && (
+                <div className="bg-red-50 border border-red-200 p-4 rounded-xl text-red-800 mb-6">
+                  <p className="font-bold">Error de Configuración</p>
+                  <p className="text-sm">La clave de API de Gemini no está configurada. Si has desplegado esta app en Render, asegúrate de añadir la variable de entorno <strong>GEMINI_API_KEY</strong> en el panel de control de Render.</p>
+                </div>
+              )}
+              {messages.map((msg, idx) => (
             <motion.div 
               key={idx}
               initial={{ opacity: 0, y: 10 }}

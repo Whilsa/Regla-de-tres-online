@@ -59,7 +59,11 @@ export class GeminiService {
   private ai: GoogleGenAI;
 
   constructor() {
-    this.ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      console.error("GEMINI_API_KEY is not defined. Please set it in your environment variables.");
+    }
+    this.ai = new GoogleGenAI({ apiKey: apiKey || '' });
   }
 
   async getTheory(topic: string, mode: Mode, step?: number, userResponse?: string) {
