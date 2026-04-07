@@ -304,7 +304,7 @@ export default function App() {
   }, [isLoading]);
 
   useEffect(() => {
-    if (view === 'THEORY' && theoryStep === 10) {
+    if (view === 'THEORY' && theoryStep === 11) {
       setResolutionPhase('START');
       const timer1 = setTimeout(() => setResolutionPhase('STEP1'), 5000);
       const timer2 = setTimeout(() => setResolutionPhase('STEP2'), 10000);
@@ -363,6 +363,11 @@ export default function App() {
     },
     {
       id: 7,
+      content: "Para avanzar en la resolución, debemos dividir el problema completo en dos partes fundamentales:\n\n1. El enunciado: Es la parte donde todas las díadas son conocidas (conocemos tanto su elemento numérico como su elemento dimensional).\n\n2. La pregunta: Es la parte donde se encuentra la incógnita, que es específicamente el elemento numérico de una de las díadas (el elemento dimensional siempre lo conocemos).",
+      buttonText: "Entendido"
+    },
+    {
+      id: 8,
       type: "EQUALITY",
       content: "La igualdad de las díadas de recursos con el trabajo forman la proporción real de magnitudes. \nTendremos una proporción para el enunciado donde conocemos todas las medidas y una segunda proporción para la pregunta en la que desconocemos un dato numérico. \nClasifica las díadas del problema arrastrándolas (o haciendo clic) a su grupo correspondiente.",
       problemText: "Cinco obreros trabajando 6 horas diarias construyen un muro en dos días, ¿cuánto tardarán cuatro obreros trabajando 7 horas diarias?",
@@ -378,19 +383,19 @@ export default function App() {
       buttonText: "A por las proporciones"
     },
     {
-      id: 8,
+      id: 9,
       type: "DIVISION",
       content: "Al dividir miembro a miembro las dos igualdades, estamos aplicando una propiedad fundamental: si dividimos cosas iguales por cosas iguales, los resultados son iguales.",
       buttonText: "¡Dividamos!"
     },
     {
-      id: 9,
+      id: 10,
       type: "CANCELLATION",
       content: "Conforme a la Primera álgebra de magnitudes, cuando una magnitud se divide entre sí misma se obtiene el número abstracto 1. Esto permite simplificar la expresión y despejar nuestra incógnita manteniendo la coherencia física del problema.",
       buttonText: "¡Qué interesante!"
     },
     {
-      id: 10,
+      id: 11,
       type: "RESOLUTION",
       content: "Recuperando la díada original a la que pertenece x son 2,14 días.\n\n¡Enhorabuena! Acabas de aprender la verdadera proporcionalidad de magnitudes. Ahora estás listo/a para practicar con problemas reales aplicando este método infalible.",
       buttonText: "¡A practicar!"
@@ -420,7 +425,7 @@ export default function App() {
         setGeometricSubStep(1);
         setShowSuccess(false);
       }
-      if (step + 1 === 7) {
+      if (step + 1 === 8) {
         setEqualityState({
           enunciado: { recursos: [], trabajo: [] },
           pregunta: { recursos: [], trabajo: [] }
@@ -428,17 +433,17 @@ export default function App() {
         setActiveEqualityPart('ENUNCIADO');
         setShowSuccess(false);
       }
-      if (step + 1 === 8) {
+      if (step + 1 === 9) {
         setIsDivided(false);
         setAnimationComplete(false);
         setShowSuccess(false);
         setShowSymbolExplanation(false);
       }
-      if (step + 1 === 9) {
+      if (step + 1 === 10) {
         setCancellationState(0);
         setShowSuccess(false);
       }
-      if (step + 1 === 10) {
+      if (step + 1 === 11) {
         setResolutionPhase('START');
         setShowSuccess(false);
       }
@@ -900,7 +905,7 @@ export default function App() {
                 ) : (
                   <div className="prose prose-lg max-w-none prose-headings:font-bold prose-headings:text-gray-900 prose-p:text-gray-700 prose-p:leading-relaxed">
                     {view === 'THEORY' && theoryStep <= THEORY_STEPS.length ? (
-                      <div className={theoryStep === 8 ? "space-y-2" : "space-y-6"}>
+                      <div className={theoryStep === 9 ? "space-y-2" : "space-y-6"}>
                         <div className="flex items-center gap-4 mb-6">
                           <div className={`w-10 h-10 rounded-full ${theme.primary} text-white flex items-center justify-center font-bold shadow-md`}>
                             {theoryStep}
@@ -913,10 +918,11 @@ export default function App() {
                               theoryStep === 4 ? "¿Ya distingues las díadas?" :
                               theoryStep === 5 ? "¿Díada homogénea o heterogénea?" :
                               theoryStep === 6 ? "¿Y en nuestro ejemplo?" :
-                              theoryStep === 7 ? "Igualdades para enunciado y pregunta" :
-                              theoryStep === 8 ? "Dividiendo igualdades" :
-                              theoryStep === 9 ? "Simplificación de magnitudes" :
-                              theoryStep === 10 ? "¡Resultado final!" : "Concepto Clave"
+                              theoryStep === 7 ? "Enunciado y pregunta" :
+                              theoryStep === 8 ? "Igualdades para enunciado y pregunta" :
+                              theoryStep === 9 ? "Dividiendo igualdades" :
+                              theoryStep === 10 ? "Simplificación de magnitudes" :
+                              theoryStep === 11 ? "¡Resultado final!" : "Concepto Clave"
                             )}
                           </h3>
                         </div>
@@ -927,7 +933,7 @@ export default function App() {
                               <motion.div 
                                 initial={THEORY_STEPS[theoryStep - 1].type === 'DIVISION' ? { opacity: 0, y: -20 } : false}
                                 animate={{ opacity: 1, y: 0 }}
-                                className={`${[8, 10].includes(theoryStep) ? 'p-4 min-h-[80px]' : 'p-8 min-h-[200px]'} rounded-3xl ${theme.mutedBg} border ${theme.borderColor} relative overflow-hidden`}
+                                className={`${[9, 11].includes(theoryStep) ? 'p-4 min-h-[80px]' : 'p-8 min-h-[200px]'} rounded-3xl ${theme.mutedBg} border ${theme.borderColor} relative overflow-hidden`}
                               >
                                 {isKids && <FloatingIcons />}
                                 <div className={`whitespace-pre-wrap ${isKids ? 'text-xl' : 'text-xl'} leading-relaxed ${theme.textColor} relative z-10`}>
@@ -1913,15 +1919,15 @@ export default function App() {
 
                             <button
                               onClick={handleNextTheoryStep}
-                              disabled={!showSuccess && [4, 5, 6, 7, 8, 9, 10].includes(theoryStep)}
-                              className={`px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all ${(!showSuccess && [4, 5, 6, 7, 8, 9, 10].includes(theoryStep)) ? 'text-slate-300 cursor-not-allowed' : 'text-slate-600 hover:bg-slate-100'}`}
+                              disabled={!showSuccess && [4, 5, 6, 8, 9, 10, 11].includes(theoryStep)}
+                              className={`px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all ${(!showSuccess && [4, 5, 6, 8, 9, 10, 11].includes(theoryStep)) ? 'text-slate-300 cursor-not-allowed' : 'text-slate-600 hover:bg-slate-100'}`}
                             >
                               Siguiente
                               <ChevronRight size={20} />
                             </button>
                           </div>
 
-                          {showSuccess && ![8, 9, 10].includes(theoryStep) && (
+                          {showSuccess && ![9, 10, 11].includes(theoryStep) && (
                             <button
                               onClick={handleNextTheoryStep}
                               className={`px-10 py-5 ${theme.primary} text-white font-bold rounded-2xl shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-3 text-lg`}
