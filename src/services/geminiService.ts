@@ -59,8 +59,8 @@ export class GeminiService {
   private ai: GoogleGenAI;
 
   constructor() {
-    // Intentamos obtener la clave de varias fuentes
-    const apiKey = process.env.GEMINI_API_KEY || (import.meta as any).env?.VITE_GEMINI_API_KEY;
+    // process.env.GEMINI_API_KEY is replaced by Vite at build time via the 'define' in vite.config.ts
+    const apiKey = process.env.GEMINI_API_KEY;
     
     if (!apiKey || apiKey === '""' || apiKey === "''") {
       console.error("GEMINI_API_KEY is not defined. Please set it in your environment variables BEFORE building.");
@@ -70,10 +70,9 @@ export class GeminiService {
 
   async getTheory(topic: string, mode: Mode, step?: number, userResponse?: string) {
     const model = "gemini-3-flash-preview";
-    try {
-      let prompt = "";
-      
-      if (topic === 'Introducción teórica') {
+    let prompt = "";
+    
+    if (topic === 'Introducción teórica') {
       prompt = `Continuamos con la "Introducción teórica" interactiva al Método de la Primera álgebra de magnitudes.
       
       ESTADO ACTUAL:
@@ -106,30 +105,21 @@ export class GeminiService {
       },
     });
     return response.text;
-    } catch (error: any) {
-      console.error("Error in getTheory:", error);
-      return `Error técnico: ${error?.message || "No se pudo conectar con la IA"}. Por favor, verifica la clave de API.`;
-    }
   }
 
   async getExercise(mode: Mode) {
     const model = "gemini-3-flash-preview";
-    try {
-      const prompt = `Genera un ejercicio práctico para resolver con el Método de la Primera álgebra de magnitudes. 
-      No des la solución todavía, solo el enunciado. Asegúrate de que sea adecuado para el modo ${mode}.`;
-      
-      const response = await this.ai.models.generateContent({
-        model: model,
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        config: {
-          systemInstruction: SYSTEM_INSTRUCTION(mode),
-        },
-      });
-      return response.text;
-    } catch (error: any) {
-      console.error("Error in getExercise:", error);
-      return `Error técnico: ${error?.message || "No se pudo generar el ejercicio"}. Por favor, verifica la clave de API.`;
-    }
+    const prompt = `Genera un ejercicio práctico para resolver con el Método de la Primera álgebra de magnitudes. 
+    No des la solución todavía, solo el enunciado. Asegúrate de que sea adecuado para el modo ${mode}.`;
+    
+    const response = await this.ai.models.generateContent({
+      model: model,
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      config: {
+        systemInstruction: SYSTEM_INSTRUCTION(mode),
+      },
+    });
+    return response.text;
   }
 
   async solveExercise(exercise: string, mode: Mode) {

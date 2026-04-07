@@ -73,11 +73,8 @@ export const ExerciseChat: React.FC<ExerciseChatProps> = ({
       const generateProblem = async () => {
         setIsLoading(true);
         try {
-          const apiKey = process.env.GEMINI_API_KEY || (import.meta as any).env?.VITE_GEMINI_API_KEY;
-          if (!apiKey || apiKey === '""' || apiKey === "''") {
-            throw new Error("La clave de API no está configurada en las variables de entorno (VITE_GEMINI_API_KEY).");
-          }
-          const ai = new GoogleGenAI({ apiKey });
+          const apiKey = process.env.GEMINI_API_KEY;
+          const ai = new GoogleGenAI({ apiKey: apiKey || '' });
           
           const systemInstruction = `Eres un guía experto en el método de resolución de problemas desarrollado por Daniel Arnaiz Boluda, el cual está basado en la Primera álgebra de magnitudes de J. M. Arnaiz. Tu objetivo es guiar al usuario paso a paso para resolver su problema de física usando este método.
 
@@ -129,13 +126,9 @@ Mantén un tono profesional pero alentador. Si el usuario se equivoca, no lo cor
           
           setMessages(prev => [...prev, { role: 'model', text }]);
           setCurrentStep(2);
-        } catch (error: any) {
-          console.error("Error generating problem (initial):", error);
-          const errorMsg = error?.message || "Error desconocido";
-          setMessages(prev => [...prev, { 
-            role: 'model', 
-            text: `Lo siento, no he podido generar un problema. Detalle técnico: ${errorMsg}. Por favor, verifica que la clave de API sea correcta y que tengas conexión a internet.` 
-          }]);
+        } catch (error) {
+          console.error("Error generating problem:", error);
+          setMessages(prev => [...prev, { role: 'model', text: 'Lo siento, no he podido generar un problema ahora mismo. Por favor, inténtalo de nuevo.' }]);
         } finally {
           setIsLoading(false);
         }
@@ -163,11 +156,8 @@ Mantén un tono profesional pero alentador. Si el usuario se equivoca, no lo cor
 
     try {
       if (!chatRef.current) {
-        const apiKey = process.env.GEMINI_API_KEY || (import.meta as any).env?.VITE_GEMINI_API_KEY;
-        if (!apiKey || apiKey === '""' || apiKey === "''") {
-          throw new Error("La clave de API no está configurada en las variables de entorno (VITE_GEMINI_API_KEY).");
-        }
-        const ai = new GoogleGenAI({ apiKey });
+        const apiKey = process.env.GEMINI_API_KEY;
+        const ai = new GoogleGenAI({ apiKey: apiKey || '' });
         const systemInstruction = `Eres un guía experto en el método de resolución de problemas desarrollado por Daniel Arnaiz Boluda, el cual está basado en la Primera álgebra de magnitudes de J. M. Arnaiz. Tu objetivo es guiar al usuario paso a paso para resolver su problema de física usando este método.
 
 IMPORTANTE: Debes seguir estrictamente este procedimiento SOCRÁTICO. NUNCA des la solución directamente. Guía al usuario con preguntas y razonamientos lógicos.
@@ -315,7 +305,7 @@ Mantén un tono profesional pero alentador. Si el usuario se equivoca, no lo cor
       const generateProblem = async () => {
         setIsLoading(true);
         try {
-          const apiKey = process.env.GEMINI_API_KEY || (import.meta as any).env?.VITE_GEMINI_API_KEY;
+          const apiKey = process.env.GEMINI_API_KEY;
           const ai = new GoogleGenAI({ apiKey: apiKey || '' });
           chatRef.current = ai.chats.create({
             model: "gemini-3-flash-preview",
@@ -365,13 +355,9 @@ Mantén un tono profesional pero alentador. Si el usuario se equivoca, no lo cor
           
           setMessages(prev => [...prev, { role: 'model', text }]);
           setCurrentStep(2);
-        } catch (error: any) {
-          console.error("Error generating problem (reset):", error);
-          const errorMsg = error?.message || "Error desconocido";
-          setMessages(prev => [...prev, { 
-            role: 'model', 
-            text: `Lo siento, no he podido generar un problema. Detalle técnico: ${errorMsg}. Por favor, verifica que la clave de API sea correcta y que tengas conexión a internet.` 
-          }]);
+        } catch (error) {
+          console.error("Error generating problem:", error);
+          setMessages(prev => [...prev, { role: 'model', text: 'Lo siento, no he podido generar un problema ahora mismo. Por favor, inténtalo de nuevo.' }]);
         } finally {
           setIsLoading(false);
         }
