@@ -59,9 +59,12 @@ export class GeminiService {
   private ai: GoogleGenAI;
 
   constructor() {
-    const apiKey = process.env.GEMINI_API_KEY;
+    // In Vite, process.env.GEMINI_API_KEY is replaced at build time by the define in vite.config.ts
+    // We also check import.meta.env just in case the user uses the VITE_ prefix
+    const apiKey = process.env.GEMINI_API_KEY || (import.meta as any).env?.VITE_GEMINI_API_KEY;
+    
     if (!apiKey) {
-      console.error("GEMINI_API_KEY is not defined. Please set it in your environment variables.");
+      console.error("GEMINI_API_KEY is not defined. Please set it in your environment variables BEFORE building.");
     }
     this.ai = new GoogleGenAI({ apiKey: apiKey || '' });
   }

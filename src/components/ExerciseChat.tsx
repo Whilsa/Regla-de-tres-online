@@ -31,12 +31,13 @@ export const ExerciseChat: React.FC<ExerciseChatProps> = ({
   } | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
   const [isInteractiveBoxOpen, setIsInteractiveBoxOpen] = useState(false);
-  const [apiKeyError, setApiKeyError] = useState(false);
+  const [apiKeyError, setApiKeyError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!process.env.GEMINI_API_KEY) {
-      setApiKeyError(true);
-      console.error("GEMINI_API_KEY is not defined. Please set it in your environment variables.");
+    const apiKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+    if (!apiKey || apiKey === '""' || apiKey === "''") {
+      setApiKeyError("Falta la clave de API");
+      console.error("GEMINI_API_KEY is not defined. Please set it in your environment variables BEFORE building.");
     }
   }, []);
 
@@ -71,7 +72,8 @@ export const ExerciseChat: React.FC<ExerciseChatProps> = ({
       const generateProblem = async () => {
         setIsLoading(true);
         try {
-          const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+          const apiKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+          const ai = new GoogleGenAI({ apiKey: apiKey || '' });
           
           const systemInstruction = `Eres un guía experto en el método de resolución de problemas desarrollado por Daniel Arnaiz Boluda, el cual está basado en la Primera álgebra de magnitudes de J. M. Arnaiz. Tu objetivo es guiar al usuario paso a paso para resolver su problema de física usando este método.
 
@@ -153,7 +155,8 @@ Mantén un tono profesional pero alentador. Si el usuario se equivoca, no lo cor
 
     try {
       if (!chatRef.current) {
-        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+        const apiKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+        const ai = new GoogleGenAI({ apiKey: apiKey || '' });
         const systemInstruction = `Eres un guía experto en el método de resolución de problemas desarrollado por Daniel Arnaiz Boluda, el cual está basado en la Primera álgebra de magnitudes de J. M. Arnaiz. Tu objetivo es guiar al usuario paso a paso para resolver su problema de física usando este método.
 
 IMPORTANTE: Debes seguir estrictamente este procedimiento SOCRÁTICO. NUNCA des la solución directamente. Guía al usuario con preguntas y razonamientos lógicos.
@@ -301,7 +304,8 @@ Mantén un tono profesional pero alentador. Si el usuario se equivoca, no lo cor
       const generateProblem = async () => {
         setIsLoading(true);
         try {
-          const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+          const apiKey = (import.meta as any).env?.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+          const ai = new GoogleGenAI({ apiKey: apiKey || '' });
           chatRef.current = ai.chats.create({
             model: "gemini-3-flash-preview",
             config: {
@@ -524,7 +528,8 @@ Mantén un tono profesional pero alentador. Si el usuario se equivoca, no lo cor
               {apiKeyError && (
                 <div className="bg-red-50 border border-red-200 p-4 rounded-xl text-red-800 mb-6">
                   <p className="font-bold">Error de Configuración</p>
-                  <p className="text-sm">La clave de API de Gemini no está configurada. Si has desplegado esta app en Render, asegúrate de añadir la variable de entorno <strong>GEMINI_API_KEY</strong> en el panel de control de Render.</p>
+                  <p className="text-sm">La clave de API de Gemini no está configurada correctamente. <strong>Detalle: {apiKeyError}</strong></p>
+                  <p className="text-xs mt-2 opacity-70">Si has desplegado esta app en Render, asegúrate de añadir la variable de entorno <strong>VITE_GEMINI_API_KEY</strong> (con el prefijo VITE_) en el panel de control de Render y haz un "Manual Deploy &rarr; Clear Cache and Redeploy".</p>
                 </div>
               )}
               {messages.map((msg, idx) => (
@@ -557,7 +562,7 @@ Mantén un tono profesional pero alentador. Si el usuario se equivoca, no lo cor
       </div>
 
           {/* Input Area */}
-          <div className="p-4 md:p-8 border-t ${isKids ? 'border-white/10 bg-slate-900/80' : 'border-slate-200 bg-white/80'} backdrop-blur-xl">
+          <div className={`p-4 md:p-8 border-t ${isKids ? 'border-white/10 bg-slate-900/80' : 'border-slate-200 bg-white/80'} backdrop-blur-xl`}>
             <div className="max-w-4xl mx-auto space-y-4">
               <div className="flex flex-wrap justify-center gap-2">
                 <button 
