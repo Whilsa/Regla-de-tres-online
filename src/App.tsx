@@ -363,8 +363,14 @@ export default function App() {
     },
     {
       id: 7,
-      content: "Para avanzar en la resolución, debemos dividir el problema completo en dos partes fundamentales:\n\n1. El enunciado: Es la parte donde todas las díadas son conocidas (conocemos tanto su elemento numérico como su elemento dimensional).\n\n2. La pregunta: Es la parte donde se encuentra la incógnita, que es específicamente el elemento numérico de una de las díadas (el elemento dimensional siempre lo conocemos).",
-      buttonText: "Entendido"
+      type: "IDENTIFY_PARTS",
+      content: "Para avanzar en la resolución, debemos dividir el problema completo en dos partes fundamentales. Haz clic en cada una de ellas en el texto de abajo para identificarlas:",
+      problemText: "Cinco obreros trabajando 6 horas diarias construyen un muro en dos días, ¿cuánto tardarán cuatro obreros trabajando 7 horas diarias?",
+      parts: [
+        { text: "Cinco obreros trabajando 6 horas diarias construyen un muro en dos días", label: "Enunciado", description: "Es la parte donde todas las díadas son conocidas (elemento numérico y dimensional)." },
+        { text: "¿cuánto tardarán cuatro obreros trabajando 7 horas diarias?", label: "Pregunta", description: "Es la parte donde se encuentra la incógnita (el elemento numérico de una de las díadas)." }
+      ],
+      buttonText: "Continuar"
     },
     {
       id: 8,
@@ -417,7 +423,7 @@ export default function App() {
 
     if (step < THEORY_STEPS.length) {
       setTheoryStep(step + 1);
-      if (step + 1 === 4) {
+      if (step + 1 === 4 || step + 1 === 7) {
         setSelectedDiadas([]);
         setShowSuccess(false);
       }
@@ -778,6 +784,24 @@ export default function App() {
                     </div>
                     <ChevronRight size={20} className="text-white opacity-70 group-hover:opacity-100 transition-all group-hover:translate-x-1" />
                   </button>
+
+                  <a 
+                    href="https://dergipark.org.tr/en/pub/jmetp/article/1612062"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`w-full flex flex-col p-4 ${theme.button} bg-blue-50 border border-blue-100 hover:border-blue-300 transition-all group`}
+                  >
+                    <div className="flex items-center justify-between w-full mb-1">
+                      <div className="flex items-center gap-3">
+                        <BookOpen size={18} className="text-blue-500" />
+                        <span className="font-bold text-blue-700">Leer artículo completo</span>
+                      </div>
+                      <ChevronRight size={18} className="text-blue-400 opacity-50 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                    </div>
+                    <p className="text-xs text-blue-600/80 leading-tight ml-7">
+                      En este artículo científico se muestran todas las demostraciones y estudios estadísticos sobre la eficacia didáctica de este método
+                    </p>
+                  </a>
                 </div>
               </div>
 
@@ -1298,6 +1322,115 @@ export default function App() {
                                 </motion.div>
                               )}
                             </div>
+                          </div>
+                        ) : THEORY_STEPS[theoryStep - 1].type === 'IDENTIFY_PARTS' ? (
+                          <div className="space-y-6">
+                            <div className={`p-8 rounded-3xl ${isKids ? 'bg-yellow-50 border-2 border-yellow-200' : 'bg-[#F5F5F0] border border-[#5A5A40]/10'} shadow-inner`}>
+                              <p className="text-xl font-medium leading-relaxed text-gray-900">
+                                {(() => {
+                                  const stepData = THEORY_STEPS[theoryStep - 1];
+                                  const text = stepData.problemText!;
+                                  const parts = stepData.parts!;
+                                  
+                                  let result: React.ReactNode[] = [text];
+                                  
+                                  parts.forEach((part: any, partIdx: number) => {
+                                    const newResult: React.ReactNode[] = [];
+                                    result.forEach(item => {
+                                      if (typeof item === 'string') {
+                                        const split = item.split(part.text);
+                                        split.forEach((s, i) => {
+                                          newResult.push(s);
+                                          if (i < split.length - 1) {
+                                            const isSelected = selectedDiadas.includes(part.text);
+                                            newResult.push(
+                                              <button
+                                                key={`part-${partIdx}-${i}`}
+                                                onClick={() => {
+                                                  if (!isSelected) {
+                                                    const newSelected = [...selectedDiadas, part.text];
+                                                    setSelectedDiadas(newSelected);
+                                                    if (newSelected.length === parts.length) {
+                                                      setShowSuccess(true);
+                                                    }
+                                                  }
+                                                }}
+                                                className={`px-2 py-1 rounded-xl transition-all relative group ${
+                                                  isSelected 
+                                                    ? 'bg-blue-500 text-white shadow-md font-bold' 
+                                                    : 'bg-white/50 hover:bg-blue-100 text-slate-800 cursor-pointer border border-blue-200/30'
+                                                } mx-1 my-1`}
+                                              >
+                                                {part.text}
+                                                {isSelected && (
+                                                  <motion.span 
+                                                    initial={{ scale: 0 }}
+                                                    animate={{ scale: 1 }}
+                                                    className="absolute -top-3 -right-2 bg-green-500 text-white text-[10px] px-2 py-0.5 rounded-full shadow-sm"
+                                                  >
+                                                    {part.label}
+                                                  </motion.span>
+                                                )}
+                                              </button>
+                                            );
+                                          }
+                                        });
+                                      } else {
+                                        newResult.push(item);
+                                      }
+                                    });
+                                    result = newResult;
+                                  });
+                                  
+                                  return result;
+                                })()}
+                              </p>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              {THEORY_STEPS[theoryStep - 1].parts!.map((part: any, idx: number) => {
+                                const isSelected = selectedDiadas.includes(part.text);
+                                return (
+                                  <motion.div
+                                    key={idx}
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: idx * 0.2 }}
+                                    className={`p-4 rounded-2xl border-2 transition-all ${
+                                      isSelected 
+                                        ? 'bg-blue-50 border-blue-400 shadow-md' 
+                                        : 'bg-white border-slate-100 opacity-50'
+                                    }`}
+                                  >
+                                    <div className="flex items-center gap-3 mb-2">
+                                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isSelected ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-400'}`}>
+                                        {idx + 1}
+                                      </div>
+                                      <h4 className={`font-bold ${isSelected ? 'text-blue-700' : 'text-slate-500'}`}>{part.label}</h4>
+                                    </div>
+                                    <p className={`text-sm ${isSelected ? 'text-blue-600' : 'text-slate-400'}`}>
+                                      {part.description}
+                                    </p>
+                                  </motion.div>
+                                );
+                              })}
+                            </div>
+
+                            {showSuccess && (
+                              <motion.div 
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="p-6 bg-green-50 border-2 border-green-200 rounded-3xl flex items-center gap-4"
+                              >
+                                <div className="w-12 h-12 bg-green-500 rounded-2xl flex items-center justify-center text-white shadow-lg">
+                                  <CheckCircle2 size={24} />
+                                </div>
+                                <div>
+                                  <p className="font-bold text-green-800 text-lg">¡Excelente identificación!</p>
+                                  <p className="text-green-700">Has separado correctamente los datos conocidos de la incógnita.</p>
+                                </div>
+                              </motion.div>
+                            )}
                           </div>
                         ) : THEORY_STEPS[theoryStep - 1].type === 'EQUALITY' ? (
                           <div className="space-y-8">
@@ -1919,8 +2052,8 @@ export default function App() {
 
                             <button
                               onClick={handleNextTheoryStep}
-                              disabled={!showSuccess && [4, 5, 6, 8, 9, 10, 11].includes(theoryStep)}
-                              className={`px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all ${(!showSuccess && [4, 5, 6, 8, 9, 10, 11].includes(theoryStep)) ? 'text-slate-300 cursor-not-allowed' : 'text-slate-600 hover:bg-slate-100'}`}
+                              disabled={!showSuccess && [4, 5, 6, 7, 8, 9, 10, 11].includes(theoryStep)}
+                              className={`px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all ${(!showSuccess && [4, 5, 6, 7, 8, 9, 10, 11].includes(theoryStep)) ? 'text-slate-300 cursor-not-allowed' : 'text-slate-600 hover:bg-slate-100'}`}
                             >
                               Siguiente
                               <ChevronRight size={20} />
