@@ -236,6 +236,7 @@ export default function App() {
   const [currentExercise, setCurrentExercise] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [retryAction, setRetryAction] = useState<(() => void) | null>(null);
 
   const handleStart = (selectedAge: number) => {
     const selectedMode = selectedAge < 13 ? 'NIÑOS' : 'ADULTOS';
@@ -464,6 +465,7 @@ export default function App() {
     }
 
     try {
+      setRetryAction(() => () => loadTheory(topic, step, userResponse));
       const timeoutPromise = new Promise((_, reject) => 
         setTimeout(() => reject(new Error('TIMEOUT')), 20000)
       );
@@ -515,6 +517,7 @@ export default function App() {
     setError(null);
     setView('EXERCISE');
     try {
+      setRetryAction(() => () => loadExercise());
       const timeoutPromise = new Promise((_, reject) => 
         setTimeout(() => reject(new Error('TIMEOUT')), 20000)
       );
@@ -556,6 +559,7 @@ export default function App() {
     setError(null);
     setView('SOLUTION');
     try {
+      setRetryAction(() => () => loadSolution());
       const timeoutPromise = new Promise((_, reject) => 
         setTimeout(() => reject(new Error('TIMEOUT')), 20000)
       );
@@ -924,7 +928,23 @@ export default function App() {
                   <div className="py-20 text-center">
                     <AlertCircle size={48} className="mx-auto text-red-400 mb-4" />
                     <p className="text-red-600 font-bold">{error}</p>
-                    <button onClick={() => setView('DASHBOARD')} className={`mt-6 ${theme.primaryText} underline`}>Volver al panel</button>
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-6">
+                      {retryAction && (
+                        <button 
+                          onClick={() => {
+                            setError(null);
+                            retryAction();
+                          }} 
+                          className={`px-8 py-3 ${theme.primary} text-white rounded-xl font-bold flex items-center gap-2 shadow-lg hover:scale-105 active:scale-95 transition-all`}
+                        >
+                          <RefreshCcw size={20} />
+                          Reintentar
+                        </button>
+                      )}
+                      <button onClick={() => setView('DASHBOARD')} className={`px-8 py-3 ${theme.mutedBg} ${theme.textColor} rounded-xl font-bold border ${theme.borderColor} hover:bg-slate-100 transition-all`}>
+                        Volver al panel
+                      </button>
+                    </div>
                   </div>
                 ) : (
                   <div className="prose prose-lg max-w-none prose-headings:font-bold prose-headings:text-gray-900 prose-p:text-gray-700 prose-p:leading-relaxed">

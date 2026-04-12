@@ -32,6 +32,8 @@ export const ExerciseChat: React.FC<ExerciseChatProps> = ({
   const [currentStep, setCurrentStep] = useState(1);
   const [isInteractiveBoxOpen, setIsInteractiveBoxOpen] = useState(false);
   const [apiKeyError, setApiKeyError] = useState<string | null>(null);
+  const [hasError, setHasError] = useState(false);
+  const [lastAction, setLastAction] = useState<{ type: 'INITIAL' | 'SEND', data?: string } | null>(null);
 
   useEffect(() => {
     const apiKey = process.env.GEMINI_API_KEY;
@@ -51,35 +53,18 @@ export const ExerciseChat: React.FC<ExerciseChatProps> = ({
   const chatRef = useRef<any>(null);
   const hasInitializedRef = useRef(false);
 
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages]);
-
-  useEffect(() => {
-    if (hasInitializedRef.current) return;
-    hasInitializedRef.current = true;
-
-    if (initialMode === 'PRACTICE') {
-      setMessages([
-        {
-          role: 'model',
-          text: '¡Hola! Vamos a practicar. Voy a proponerte un problema para que lo resolvamos juntos usando el método de Daniel Arnaiz Boluda.\n\nGenerando un ejercicio para ti...'
-        }
-      ]);
+  const generateProblem = async () => {
+    setIsLoading(true);
+    setHasError(false);
+    setLastAction({ type: 'INITIAL' });
+    try {
+      const apiKey = process.env.GEMINI_API_KEY || (import.meta as any).env?.VITE_GEMINI_API_KEY;
+      if (!apiKey || apiKey === '""' || apiKey === "''") {
+        throw new Error("La clave de API no está configurada en las variables de entorno (VITE_GEMINI_API_KEY).");
+      }
+      const ai = new GoogleGenAI({ apiKey });
       
-      // Trigger AI to generate a problem
-      const generateProblem = async () => {
-        setIsLoading(true);
-        try {
-          const apiKey = process.env.GEMINI_API_KEY || (import.meta as any).env?.VITE_GEMINI_API_KEY;
-          if (!apiKey || apiKey === '""' || apiKey === "''") {
-            throw new Error("La clave de API no está configurada en las variables de entorno (VITE_GEMINI_API_KEY).");
-          }
-          const ai = new GoogleGenAI({ apiKey });
-          
-          const systemInstruction = `Eres un guía experto en el método de resolución de problemas desarrollado por Daniel Arnaiz Boluda, el cual está basado en la Primera álgebra de magnitudes de J. M. Arnaiz. Tu objetivo es guiar al usuario paso a paso para resolver su problema de física usando este método.
+      const systemInstruction = `Eres un guía experto en el método de resolución de problemas desarrollado por Daniel Arnaiz Boluda, el cual está basado en la Primera álgebra de magnitudes de J. M. Arnaiz. Tu objetivo es guiar al usuario paso a paso para resolver su problema de física usando este método.
 
 IMPORTANTE: Debes seguir estrictamente este procedimiento SOCRÁTICO. NUNCA des la solución directamente. Guía al usuario con preguntas y razonamientos lógicos.
 
@@ -107,39 +92,58 @@ PASOS A SEGUIR (Debes mencionar siempre el número del paso al inicio de tu resp
 
 Mantén un tono profesional pero alentador. Si el usuario se equivoca, no lo corrijas directamente, hazle una pregunta para que se dé cuenta de su error.`;
 
-          chatRef.current = ai.chats.create({
-            model: "gemini-3-flash-preview",
-            config: {
-              systemInstruction,
-            },
-          });
+      chatRef.current = ai.chats.create({
+        model: "gemini-3-flash-preview",
+        config: {
+          systemInstruction,
+        },
+      });
 
-          const prompt = isKids 
-                ? "Genera UN ÚNICO problema divertido de regla de tres para un niño. IMPORTANTE: Tu respuesta debe tener este formato exacto:\nLínea 1: El enunciado del problema.\nLínea 2: El paso 2.º (preguntar por las díadas).\nNO propongas más de un problema bajo ninguna circunstancia."
-                : "Genera UN ÚNICO problema de regla de tres. IMPORTANTE: Tu respuesta debe tener este formato exacto:\nLínea 1: El enunciado del problema.\nLínea 2: El paso 2.º (preguntar por las díadas).\nNO propongas más de un problema bajo ninguna circunstancia.";
-          
-          const response = await chatRef.current.sendMessage({ message: prompt });
-          const text = response.text;
-          
-          // Extract the problem statement
-          const lines = text.split('\n').filter(l => l.trim().length > 0);
-          if (lines.length > 0) {
-            setPinnedProblem(lines[0]);
-          }
-          
-          setMessages(prev => [...prev, { role: 'model', text }]);
-          setCurrentStep(2);
-        } catch (error: any) {
-          console.error("Error generating problem (initial):", error);
-          const errorMsg = error?.message || "Error desconocido";
-          setMessages(prev => [...prev, { 
-            role: 'model', 
-            text: `Lo siento, no he podido generar un problema. Detalle técnico: ${errorMsg}. Por favor, verifica que la clave de API sea correcta y que tengas conexión a internet.` 
-          }]);
-        } finally {
-          setIsLoading(false);
+      const prompt = isKids 
+            ? "Genera UN ÚNICO problema divertido de regla de tres para un niño. IMPORTANTE: Tu respuesta debe tener este formato exacto:\nLínea 1: El enunciado del problema.\nLínea 2: El paso 2.º (preguntar por las díadas).\nNO propongas más de un problema bajo ninguna circunstancia."
+            : "Genera UN ÚNICO problema de regla de tres. IMPORTANTE: Tu respuesta debe tener este formato exacto:\nLínea 1: El enunciado del problema.\nLínea 2: El paso 2.º (preguntar por las díadas).\nNO propongas más de un problema bajo ninguna circunstancia.";
+      
+      const response = await chatRef.current.sendMessage({ message: prompt });
+      const text = response.text;
+      
+      // Extract the problem statement
+      const lines = text.split('\n').filter(l => l.trim().length > 0);
+      if (lines.length > 0) {
+        setPinnedProblem(lines[0]);
+      }
+      
+      setMessages(prev => [...prev, { role: 'model', text }]);
+      setCurrentStep(2);
+    } catch (error: any) {
+      console.error("Error generating problem (initial):", error);
+      setHasError(true);
+      const errorMsg = error?.message || "Error desconocido";
+      setMessages(prev => [...prev, { 
+        role: 'model', 
+        text: `Se ha perdido la conexión. Detalle técnico: ${errorMsg}. Por favor, vuelve a intentarlo.` 
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  useEffect(() => {
+    if (hasInitializedRef.current) return;
+    hasInitializedRef.current = true;
+
+    if (initialMode === 'PRACTICE') {
+      setMessages([
+        {
+          role: 'model',
+          text: '¡Hola! Vamos a practicar. Voy a proponerte un problema para que lo resolvamos juntos usando el método de Daniel Arnaiz Boluda.\n\nGenerando un ejercicio para ti...'
         }
-      };
+      ]);
       
       generateProblem();
     } else {
@@ -157,9 +161,14 @@ Mantén un tono profesional pero alentador. Si el usuario se equivoca, no lo cor
     const userMessage = overrideMessage || input.trim();
     if (!userMessage || isLoading) return;
 
-    if (!overrideMessage) setInput('');
-    setMessages(prev => [...prev, { role: 'user', text: userMessage }]);
+    if (!overrideMessage) {
+      setInput('');
+      setMessages(prev => [...prev, { role: 'user', text: userMessage }]);
+    }
+    
     setIsLoading(true);
+    setHasError(false);
+    setLastAction({ type: 'SEND', data: userMessage });
 
     try {
       if (!chatRef.current) {
@@ -242,11 +251,24 @@ Mantén un tono profesional pero alentador. Si el usuario se equivoca, no lo cor
       }
 
       setMessages(prev => [...prev, { role: 'model', text }]);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Chat Error:", error);
-      setMessages(prev => [...prev, { role: 'model', text: "Lo siento, ha ocurrido un error. Por favor, inténtalo de nuevo." }]);
+      setHasError(true);
+      const errorMsg = error?.message || "Error desconocido";
+      setMessages(prev => [...prev, { 
+        role: 'model', 
+        text: `Se ha perdido la conexión. Detalle técnico: ${errorMsg}. Por favor, vuelve a intentarlo.` 
+      }]);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleRetry = () => {
+    if (lastAction?.type === 'INITIAL') {
+      generateProblem();
+    } else if (lastAction?.type === 'SEND') {
+      handleSend(lastAction.data);
     }
   };
 
@@ -305,83 +327,19 @@ Mantén un tono profesional pero alentador. Si el usuario se equivoca, no lo cor
   };
 
   const resetChat = () => {
+    setInput('');
+    setHasError(false);
     if (initialMode === 'PRACTICE') {
       setMessages([
         {
           role: 'model',
-          text: '¡Hola! Vamos a practicar de nuevo. Generando un nuevo ejercicio para ti...'
+          text: '¡Hola! Vamos a practicar. Voy a proponerte un problema para que lo resolvamos juntos usando el método de Daniel Arnaiz Boluda.\n\nGenerando un ejercicio para ti...'
         }
       ]);
       setPinnedProblem(null);
       setPinnedEquation(null);
       setCurrentStep(1);
       chatRef.current = null;
-      
-      // Re-trigger generation
-      const generateProblem = async () => {
-        setIsLoading(true);
-        try {
-          const apiKey = process.env.GEMINI_API_KEY || (import.meta as any).env?.VITE_GEMINI_API_KEY;
-          const ai = new GoogleGenAI({ apiKey: apiKey || '' });
-          chatRef.current = ai.chats.create({
-            model: "gemini-3-flash-preview",
-            config: {
-              systemInstruction: `Eres un guía experto en el método de resolución de problemas desarrollado por Daniel Arnaiz Boluda, el cual está basado en la Primera álgebra de magnitudes de J. M. Arnaiz. Tu objetivo es guiar al usuario paso a paso para resolver su problema de física usando este método.
-
-IMPORTANTE: Debes seguir estrictamente este procedimiento SOCRÁTICO. NUNCA des la solución directamente. Guía al usuario con preguntas y razonamientos lógicos.
-
-REGLAS DE ESTILO Y CONTENIDO:
-- RECUERDA: Debes mencionar siempre el nombre completo "Primera álgebra de magnitudes" cuando te refieras al método o a sus principios.
-- NO uses ** para negrita en el texto.
-- NO uses el carácter \` para citar o indicar símbolos (por ejemplo, no escribas \`*\`).
-- RECUERDA: El signo '*' se usa ÚNICAMENTE para la multiplicación entre dos o más díadas (ejemplo: 8 obreros * 30 días). NUNCA lo uses para unir un número con su magnitud (ejemplo correcto: 8 obreros).
-- RECUERDA: En este método, RECURSOS = TRABAJO. Las igualdades relacionan directamente magnitudes diferentes (ejemplo: 120 litros = 10 minutos).
-- PROHIBIDO: NO corrijas al usuario con fórmulas de física convencional. NO introduzcas constantes, ritmos, caudales o coeficientes (como 'c') para hacer la igualdad "físicamente correcta" según la física tradicional. En el álgebra de magnitudes, la igualdad directa entre magnitudes es la base.
-- RECUERDA: En el paso 6.º (igualdad aritmética), los signos tradicionales de multiplicación son el punto (·) o la 'x'. NUNCA uses '*' en este paso.
-- RECUERDA: La incógnita NUNCA es la magnitud, sino el elemento numérico de la díada. Las magnitudes siempre las conocemos.
-- SÉ CONCISO: No des explicaciones innecesarias en cada paso. Limítate a pedir el siguiente paso del procedimiento. Solo da explicaciones si el usuario se equivoca o tiene dudas.
-- IMPORTANTE: En los pasos 5.º (dividir miembro a miembro) y 6.º (igualdad aritmética), NUNCA des la solución ni escribas la ecuación tú mismo. Debes pedir al usuario que utilice el CUADRO INTERACTIVO. Dile explícitamente que haga clic en el botón "Cuadro interactivo" o en las palabras "Cuadro interactivo" de tu mensaje para abrirlo. Detente ahí y espera su respuesta.
-- En el paso 5.º, una vez el usuario haya enviado su respuesta a través del cuadro, esta se fijará en la parte superior de la pantalla.
-- CUANDO PROPONGAS UN NUEVO PROBLEMA (segundo, tercero, etc.): Debes empezar SIEMPRE con el enunciado en una sola línea, seguido del paso 2.º. Esto es vital para que el sistema pueda fijar el nuevo enunciado.
-
-PASOS A SEGUIR (Debes mencionar siempre el número del paso al inicio de tu respuesta, ej: "5.º paso: ..."):
-1.º El usuario plantea el problema. (En este caso, tú como IA propondrás el problema primero).
-2.º El usuario debe indicar las díadas que observe en el problema planteado.
-3.º El usuario debe indicar la igualdad correspondiente al enunciado. Es muy importante que respete el signo * para la multiplicación de las díadas si hay más de una.
-4.º El usuario debe indicar la igualdad correspondiente a la pregunta. Es muy importante que respete el signo * para la multiplicación de las díadas si hay más de una.
-5.º Recordar las dos igualdades y pedir al usuario que las divida miembro a miembro utilizando el CUADRO INTERACTIVO. No escribas tú el resultado.
-6.º Recordar que la división de una magnitud entre sí misma es la unidad (número abstracto). Pedir la igualdad puramente aritmética resultante utilizando el CUADRO INTERACTIVO. El usuario debe usar signos tradicionales de aritmética (· o x para multiplicar, / para dividir).
-7.º Preguntar el resultado de la incógnita (el valor numérico). Si no sabe, guiarlo.
-
-Mantén un tono profesional pero alentador. Si el usuario se equivoca, no lo corrijas directamente, hazle una pregunta para que se dé cuenta de su error.`,
-            },
-          });
-
-          const prompt = isKids 
-            ? "Genera UN ÚNICO problema divertido de regla de tres para un niño. IMPORTANTE: Tu respuesta debe tener este formato exacto:\nLínea 1: El enunciado del problema.\nLínea 2: El paso 2.º (preguntar por las díadas).\nNO propongas más de un problema bajo ninguna circunstancia."
-            : "Genera UN ÚNICO problema de regla de tres. IMPORTANTE: Tu respuesta debe tener este formato exacto:\nLínea 1: El enunciado del problema.\nLínea 2: El paso 2.º (preguntar por las díadas).\nNO propongas más de un problema bajo ninguna circunstancia.";
-          
-          const response = await chatRef.current.sendMessage({ message: prompt });
-          const text = response.text;
-          
-          const lines = text.split('\n').filter(l => l.trim().length > 0);
-          if (lines.length > 0) {
-            setPinnedProblem(lines[0]);
-          }
-          
-          setMessages(prev => [...prev, { role: 'model', text }]);
-          setCurrentStep(2);
-        } catch (error: any) {
-          console.error("Error generating problem (reset):", error);
-          const errorMsg = error?.message || "Error desconocido";
-          setMessages(prev => [...prev, { 
-            role: 'model', 
-            text: `Lo siento, no he podido generar un problema. Detalle técnico: ${errorMsg}. Por favor, verifica que la clave de API sea correcta y que tengas conexión a internet.` 
-          }]);
-        } finally {
-          setIsLoading(false);
-        }
-      };
       generateProblem();
     } else {
       setMessages([
@@ -568,6 +526,15 @@ Mantén un tono profesional pero alentador. Si el usuario se equivoca, no lo cor
                 <div className="whitespace-pre-wrap leading-relaxed text-base md:text-lg">
                   {msg.role === 'model' ? renderMessageText(msg.text) : msg.text}
                 </div>
+                {msg.role === 'model' && hasError && idx === messages.length - 1 && (
+                  <button
+                    onClick={handleRetry}
+                    className="mt-4 flex items-center gap-2 px-5 py-2.5 bg-red-500 text-white rounded-xl font-bold hover:bg-red-600 transition-all shadow-md active:scale-95"
+                  >
+                    <RefreshCcw size={18} />
+                    Reintentar
+                  </button>
+                )}
               </div>
             </motion.div>
           ))}
